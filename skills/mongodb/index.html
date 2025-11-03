@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - MongoDB | Sujeet Yadav</title>
+    <meta name="description" content="MongoDB skill details, intro and comprehensive concepts with examples" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .concept-section { margin-bottom: 2rem; }
+      .code-example { background: #0b0d12; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px; white-space: pre; overflow: auto; font-size: 0.875rem; }
+      .explanation { margin-bottom: 1rem; }
+    </style>
+  </head>
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+    <main class="section pt-6">
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">MongoDB</h1>
+        <p class="text-muted-2 small mb-4">Document database with flexible schema design, indexes, and aggregation pipelines. Below is a comprehensive guide to key MongoDB concepts with detailed explanations and examples. (Examples use MongoDB shell syntax; adaptable to drivers like PyMongo or Mongoose.)</p>
+        
+        <div class="row g-4 align-items-start">
+          <div class="col-lg-4 text-center">
+            <img src="icon.svg" alt="MongoDB icon" style="width:220px;height:220px;"/>
+          </div>
+          <div class="col-lg-8">
+            <!-- Basic Example -->
+            <div class="panel-v2 concept-section">
+              <h5 class="mb-2">Basic Example: Simple Query</h5>
+              <div class="explanation">
+                <p>This query retrieves all active users from the <code>users</code> collection, demonstrating basic filtering in the MongoDB shell.</p>
+              </div>
+              <pre class="code-example"><code>db.users.find({ active: true })</code></pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 align-items-center">
+                      <!-- Concept 1: Collections and Documents -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">1. Collections and Documents</h5>
+                        <div class="explanation">
+                          <p>MongoDB uses collections (analogous to tables) to store JSON-like documents (BSON). No fixed schema; documents can vary. Collections are created implicitly on insert.</p>
+                        </div>
+                        <pre class="code-example"><code>// Create collection and insert document
+          db.users.insertOne({
+            name: "Sujeet Yadav",
+            email: "sujeet@example.com",
+            age: 30,
+            skills: ["JS", "Laravel", "MongoDB"],
+            active: true
+          });
+          
+          // Insert multiple
+          db.users.insertMany([
+            { name: "Alice", age: 25, active: false },
+            { name: "Bob", age: 35, active: true }
+          ]);
+          
+          // View collection
+          db.users.find().pretty();  // Pretty print for readability</code></pre>
+                      </div>
+          
+                      <!-- Concept 2: CRUD Operations -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">2. CRUD Operations</h5>
+                        <div class="explanation">
+                          <p>Create (insert), Read (find), Update (updateOne/updateMany), Delete (deleteOne/deleteMany). Use filters for targeted operations; upsert for create-or-update.</p>
+                        </div>
+                        <pre class="code-example"><code>// Create
+          db.users.insertOne({ name: "Charlie", active: true });
+          
+          // Read
+          db.users.find({ age: { $gt: 25 } });  // Greater than 25
+          
+          // Update
+          db.users.updateOne(
+            { name: "Sujeet Yadav" },
+            { $set: { age: 31 } }
+          );
+          
+          // Update many with upsert
+          db.users.updateMany(
+            { active: false },
+            { $set: { active: true } },
+            { upsert: true }
+          );
+          
+          // Delete
+          db.users.deleteOne({ name: "Charlie" });</code></pre>
+                      </div>
+          
+                      <!-- Concept 3: Queries and Filters -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">3. Queries and Filters</h5>
+                        <div class="explanation">
+                          <p>Queries use BSON operators ($eq, $gt, $in, $regex). Logical: $and, $or, $not. Projection limits fields; sort, limit, skip for pagination.</p>
+                        </div>
+                        <pre class="code-example"><code>// Equality and range
+          db.users.find({ age: { $eq: 30 } });
+          db.users.find({ age: { $gte: 25, $lte: 35 } });
+          
+          // Array and regex
+          db.users.find({ skills: { $in: ["JS", "Python"] } });
+          db.users.find({ name: { $regex: "^S", $options: "i" } });  // Starts with S, case-insensitive
+          
+          // Logical
+          db.users.find({
+            $and: [{ active: true }, { age: { $gt: 28 } }]
+          });
+          
+          // Projection and sorting
+          db.users.find({}, { name: 1, email: 1, _id: 0 }).sort({ age: -1 }).limit(5);</code></pre>
+                      </div>
+          
+                      <!-- Concept 4: Indexing -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">4. Indexing</h5>
+                        <div class="explanation">
+                          <p>Indexes improve query performance (single-field, compound, text, geospatial). Create with createIndex(); analyze with explain(). Unique indexes enforce constraints.</p>
+                        </div>
+                        <pre class="code-example"><code>// Single field
+          db.users.createIndex({ email: 1 });  // Ascending
+          
+          // Compound
+          db.users.createIndex({ active: 1, age: -1 });
+          
+          // Text search
+          db.users.createIndex({ name: "text", skills: "text" });
+          db.users.find({ $text: { $search: "JavaScript developer" } });
+          
+          // Unique
+          db.users.createIndex({ email: 1 }, { unique: true });
+          
+          // Explain query performance
+          db.users.find({ email: "sujeet@example.com" }).explain("executionStats");</code></pre>
+                      </div>
+          
+                      <!-- Concept 5: Aggregation Pipeline -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">5. Aggregation Pipeline</h5>
+                        <div class="explanation">
+                          <p>Aggregation processes data through stages ($match, $group, $sort, $project). Powerful for analytics, joins ($lookup), and transformations.</p>
+                        </div>
+                        <pre class="code-example"><code>// Basic pipeline: Average age of active users
+          db.users.aggregate([
+            { $match: { active: true } },
+            { $group: { _id: null, avgAge: { $avg: "$age" } } }
+          ]);
+          
+          // With project and sort
+          db.users.aggregate([
+            { $match: { active: true } },
+            { $group: { _id: "$skills", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $project: { _id: 0, skill: "$_id", userCount: "$count" } },
+            { $limit: 3 }
+          ]);
+          
+          // Lookup (join)
+          db.users.aggregate([
+            { $lookup: {
+                from: "posts",
+                localField: "_id",
+                foreignField: "user_id",
+                as: "posts"
+              }
+            }
+          ]);</code></pre>
+                      </div>
+          
+                      <!-- Concept 6: Schema Design -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">6. Schema Design</h5>
+                        <div class="explanation">
+                          <p>Denormalize for read-heavy apps (embed related data); normalize for write-heavy (references). Consider embedding vs. referencing based on query patterns and document size (16MB limit).</p>
+                        </div>
+                        <pre class="code-example"><code>// Embedding: User with addresses
+          db.users.insertOne({
+            name: "Sujeet",
+            addresses: [
+              { type: "home", street: "123 Main St", city: "Delhi" },
+              { type: "work", street: "456 Office Ave", city: "Noida" }
+            ]
+          });
+          
+          // Referencing: Separate collections
+          db.users.insertOne({ name: "Sujeet", _id: ObjectId() });
+          db.addresses.insertOne({
+            user_id: ObjectId("..."),
+            type: "home",
+            street: "123 Main St"
+          });
+          
+          // Query embedded
+          db.users.find({ "addresses.city": "Delhi" });
+          
+          // Query referenced
+          db.users.aggregate([
+            { $lookup: { from: "addresses", localField: "_id", foreignField: "user_id", as: "addresses" } }
+          ]);</code></pre>
+                      </div>
+          
+                      <!-- Concept 7: Replication and Sharding -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">7. Replication and Sharding</h5>
+                        <div class="explanation">
+                          <p>Replica sets provide high availability (primary-secondary). Sharding distributes data across shards for scalability. Use for production clusters.</p>
+                        </div>
+                        <pre class="code-example"><code>// Initiate replica set (rs.initiate())
+          rs.initiate({
+            _id: "myReplicaSet",
+            members: [
+              { _id: 0, host: "mongo1:27017" },
+              { _id: 1, host: "mongo2:27017" }
+            ]
+          });
+          
+          // Check status
+          rs.status();
+          
+          // Sharding: Enable on collection
+          sh.enableSharding("mydb");
+          sh.shardCollection("mydb.users", { email: "hashed" });  // Hashed shard key
+          
+          // Balancer status
+          sh.getBalancerState();</code></pre>
+                      </div>
+          
+                      <!-- Concept 8: Drivers and Application Integration -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">8. Drivers and Application Integration</h5>
+                        <div class="explanation">
+                          <p>MongoDB drivers (e.g., Node.js, Python) abstract shell ops. Use connection strings; handle errors, pooling. Mongoose for schema validation in Node.js.</p>
+                        </div>
+                        <pre class="code-example"><code>// Node.js with MongoDB driver
+          const { MongoClient } = require('mongodb');
+          const uri = 'mongodb://localhost:27017';
+          
+          async function run() {
+            const client = new MongoClient(uri);
+            try {
+              await client.connect();
+              const db = client.db('test');
+              const users = db.collection('users');
+              
+              // Insert
+              await users.insertOne({ name: 'Sujeet' });
+              
+              // Find
+              const result = await users.find({ active: true }).toArray();
+              console.log(result);
+            } finally {
+              await client.close();
+            }
+          }
+          run();
+          
+          // Mongoose example (with schema)
+          const mongoose = require('mongoose');
+          const userSchema = new mongoose.Schema({
+            name: String,
+            age: Number
+          });
+          const User = mongoose.model('User', userSchema);</code></pre>
+                      </div>
+          
+                      <!-- Concept 9: Transactions -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">9. Transactions</h5>
+                        <div class="explanation">
+                          <p>Multi-document ACID transactions (since 4.0) for consistency. Use sessions; supported in replica sets/sharded clusters. Commit or abort.</p>
+                        </div>
+                        <pre class="code-example"><code>// Multi-document transaction
+          const session = client.startSession();
+          try {
+            session.startTransaction();
+            await db.collection('users').updateOne({ name: 'Sujeet' }, { $inc: { balance: -100 } }, { session });
+            await db.collection('accounts').updateOne({ type: 'savings' }, { $inc: { amount: 100 } }, { session });
+            await session.commitTransaction();
+          } catch (error) {
+            await session.abortTransaction();
+          } finally {
+            session.endSession();
+          }
+          
+          // Shell equivalent
+          session = db.getMongo().startSession();
+          session.startTransaction();
+          db.users.updateOne({ name: "Sujeet" }, { $inc: { balance: -100 } }, { session: session });
+          session.commitTransaction();
+          session.endSession();</code></pre>
+                      </div>
+          
+                      <!-- Concept 10: GridFS for Files -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">10. GridFS for Files</h5>
+                        <div class="explanation">
+                          <p>GridFS stores large files (>16MB) across fs.files and fs.chunks. Use for media uploads; chunked storage with metadata.</p>
+                        </div>
+                        <pre class="code-example"><code>// Insert file with GridFS
+          const { GridFSBucket } = require('mongodb');
+          const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
+          
+          const uploadStream = bucket.openUploadStream('file.txt');
+          fs.createReadStream('/path/to/file.txt').pipe(uploadStream);
+          
+          // Find file
+          const downloadStream = bucket.openDownloadStreamByName('file.txt');
+          downloadStream.pipe(fs.createWriteStream('downloaded.txt'));
+          
+          // Shell: List files
+          db.fs.files.find().pretty();
+          
+          // Delete
+          db.fs.files.deleteOne({ filename: "file.txt" });</code></pre>
+                      </div>
+          
+                      <div class="alert alert-info mt-4">
+                        <p>This covers core MongoDB concepts. For advanced topics like Atlas (cloud), change streams, or time-series collections, explore the official MongoDB docs. Optimize with profiling and monitoring for production.</p>
+                      </div>
+        </div>
+      </div>
+    </main>
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+    <script>
+      // Inline script to update year (demo)
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+POST /payments -d { "amount": 1000, "currency": "INR" }

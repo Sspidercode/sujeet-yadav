@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Skill - Role-Based Authentication | Sujeet Yadav</title>
+  <meta name="description"
+    content="Role-Based Authentication skill details, intro and comprehensive concepts with examples" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../../assets/css/style.css" rel="stylesheet" />
+  <style>
+    .concept-section {
+      margin-bottom: 2rem;
+    }
+
+    .code-example {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 12px;
+      white-space: pre;
+      overflow: auto;
+      font-size: 0.875rem;
+    }
+
+    .explanation {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body class="theme-dark">
+  <canvas id="smokeCanvas"></canvas>
+  <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+    <div class="container py-2">
+      <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+      <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+    </div>
+  </nav>
+  <main class="section pt-6">
+    <div class="container">
+      <p class="eyebrow-v2">Skill</p>
+      <h1 class="title-v2 mb-2">Role-Based Authentication</h1>
+      <p class="text-muted-2 small mb-4">Implementing roles/permissions, guards, and policies for secure multi-role
+        applications. Below is a comprehensive guide to key Role-Based Authentication (RBAC) concepts with detailed
+        explanations and examples. (Examples use Node.js/Express and Laravel/PHP; adaptable to other stacks.)</p>
+
+      <div class="row g-4 align-items-start">
+        <div class="col-lg-4 text-center">
+          <img src="icon.svg" alt="RBA icon" style="width:220px;height:220px;" />
+        </div>
+        <div class="col-lg-8">
+          <!-- Basic Example -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">Basic Example: Role Check</h5>
+            <div class="explanation">
+              <p>This simple conditional checks a user's role before allowing access, a foundational RBAC pattern.</p>
+            </div>
+            <pre class="code-example"><code>if (user.role === 'admin') { /* allow */ }</code></pre>
+            <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+          </div>
+        </div>
+      </div>
+      <div class="row g-4 align-items-center">
+        <!-- Concept 1: Overview of RBAC -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">1. Overview of RBAC</h5>
+          <div class="explanation">
+            <p>RBAC assigns users roles (e.g., admin, user) with predefined permissions. Hierarchical (roles inherit),
+              attribute-based (ABAC extension). Ensures least privilege; scalable for multi-tenant apps.</p>
+          </div>
+          <pre class="code-example"><code>// RBAC flow
+          // 1. Authenticate user (JWT/session)
+          // 2. Extract roles/permissions from token/DB
+          // 3. Check against requested action
+          // 4. Allow/deny with 403 Forbidden</code></pre>
+        </div>
+
+        <!-- Concept 2: Roles vs Permissions -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">2. Roles vs Permissions</h5>
+          <div class="explanation">
+            <p>Roles group permissions (e.g., 'editor' has 'read' + 'write'). Permissions are granular actions (create,
+              read, update, delete - CRUD). Many-to-many relations.</p>
+          </div>
+          <pre class="code-example"><code>// DB Schema (SQL)
+          CREATE TABLE roles (
+              id SERIAL PRIMARY KEY,
+              name VARCHAR(50) UNIQUE
+          );
+          
+          CREATE TABLE permissions (
+              id SERIAL PRIMARY KEY,
+              name VARCHAR(50) UNIQUE  -- e.g., 'users:read'
+          );
+          
+          CREATE TABLE role_permissions (
+              role_id INTEGER REFERENCES roles(id),
+              permission_id INTEGER REFERENCES permissions(id),
+              PRIMARY KEY (role_id, permission_id)
+          );
+          
+          CREATE TABLE user_roles (
+              user_id INTEGER REFERENCES users(id),
+              role_id INTEGER REFERENCES roles(id),
+              PRIMARY KEY (user_id, role_id)
+          );
+          
+          // Assign
+          INSERT INTO roles (name) VALUES ('admin'), ('user');
+          INSERT INTO permissions (name) VALUES ('users:read'), ('users:write');
+          INSERT INTO role_permissions VALUES (1, 1), (1, 2);  // Admin has both</code></pre>
+        </div>
+
+        <!-- Concept 3: User Models with Roles -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">3. User Models with Roles</h5>
+          <div class="explanation">
+            <p>Extend user model to include roles. In Laravel, use relationships; in Node.js, populate from JWT payload.
+            </p>
+          </div>
+          <pre class="code-example"><code>// Laravel User model
+          class User extends Authenticatable {
+              public function roles() {
+                  return $this->belongsToMany(Role::class);
+              }
+              
+              public function hasRole(string $role): bool {
+                  return $this->roles()->where('name', $role)->exists();
+              }
+              
+              public function hasPermission(string $permission): bool {
+                  return $this->roles()->whereHas('permissions', fn($q) => $q->where('name', $permission))->exists();
+              }
+          }
+          
+          // Usage
+          if (auth()->user()->hasRole('admin')) {
+              // Allow
+          }
+          
+          // Node.js (Mongoose)
+          const userSchema = new Schema({
+              name: String,
+              roles: [{ type: Schema.Types.ObjectId, ref: 'Role' }]
+          });
+          userSchema.methods.hasRole = function(role) {
+              return this.roles.some(r => r.name === role);
+          };</code></pre>
+        </div>
+
+        <!-- Concept 4: Middleware/Guards -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">4. Middleware/Guards</h5>
+          <div class="explanation">
+            <p>Middleware intercepts requests to enforce RBAC. In Express, custom functions; in Laravel,
+              RouteServiceProvider or gates.</p>
+          </div>
+          <pre class="code-example"><code>// Express middleware
+          function roleMiddleware(roles = []) {
+              return (req, res, next) => {
+                  if (!req.user || !roles.includes(req.user.role)) {
+                      return res.status(403).json({ error: 'Insufficient role' });
+                  }
+                  next();
+              };
+          }
+          
+          app.get('/admin/users', authMiddleware, roleMiddleware(['admin']), (req, res) => {
+              // Admin-only
+              res.json(users);
+          });
+          
+          // Laravel middleware
+          class RoleMiddleware {
+              public function handle($request, Closure $next, ...$roles) {
+                  if (!auth()->user() || !auth()->user()->hasAnyRole($roles)) {
+                      abort(403, 'Insufficient permissions');
+                  }
+                  return $next($request);
+              }
+          }
+          
+          // Usage: Route::get('/admin', ...)->middleware('role:admin');
+          </code></pre>
+        </div>
+
+        <!-- Concept 5: Policies and Gates -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">5. Policies and Gates</h5>
+          <div class="explanation">
+            <p>Policies define authorization logic per model/action. Gates for simple checks. Laravel's authorize() in
+              controllers.</p>
+          </div>
+          <pre class="code-example"><code>// Laravel Gate
+          Gate::define('edit-user', function (User $user, User $target) {
+              return $user->id === $target->id || $user->hasRole('admin');
+          });
+          
+          // Policy
+          class UserPolicy {
+              public function update(User $authUser, User $user): bool {
+                  return $authUser->id === $user->id || $authUser->hasRole('admin');
+              }
+          }
+          
+          // Register
+          protected $policies = [User::class => UserPolicy::class];
+          
+          // Controller
+          public function update(User $user) {
+              $this->authorize('update', $user);  // Throws 403 if denied
+              // Update logic
+          }
+          
+          // View: @can('update', $user) ... @endcan</code></pre>
+        </div>
+
+        <!-- Concept 6: JWT with Roles -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">6. JWT with Roles</h5>
+          <div class="explanation">
+            <p>Embed roles in JWT payload during login. Verify on each request. Use libraries like jsonwebtoken.</p>
+          </div>
+          <pre class="code-example"><code>// Login (Node.js)
+          app.post('/login', async (req, res) => {
+              const user = await User.findOne({ email: req.body.email });
+              if (!user || !await bcrypt.compare(req.body.password, user.password)) {
+                  return res.status(401).json({ error: 'Invalid credentials' });
+              }
+              
+              const token = jwt.sign(
+                  { id: user.id, role: user.role },  // Embed role
+                  'secret_key',
+                  { expiresIn: '1h' }
+              );
+              res.json({ token });
+          });
+          
+          // Verify in middleware (as above)
+          </code></pre>
+        </div>
+
+        <!-- Concept 7: Database Schema for RBAC -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">7. Database Schema for RBAC</h5>
+          <div class="explanation">
+            <p>Normalize with separate tables for roles, permissions, assignments. Use pivot for many-to-many.</p>
+          </div>
+          <pre class="code-example"><code>// Laravel Migration
+          Schema::create('roles', function (Blueprint $table) {
+              $table->id();
+              $table->string('name')->unique();
+              $table->timestamps();
+          });
+          
+          Schema::create('permissions', function (Blueprint $table) {
+              $table->id();
+              $table->string('name')->unique();  // 'users:create'
+              $table->timestamps();
+          });
+          
+          Schema::create('role_has_permissions', function (Blueprint $table) {
+              $table->foreignId('role_id')->constrained()->cascadeOnDelete();
+              $table->foreignId('permission_id')->constrained()->cascadeOnDelete();
+              $table->primary(['role_id', 'permission_id']);
+          });
+          
+          Schema::create('model_has_roles', function (Blueprint $table) {
+              $table->unsignedBigInteger('role_id');
+              $table->morphs('model');  // Polymorphic for users, etc.
+              $table->primary(['role_id', 'model_id', 'model_type']);
+          });</code></pre>
+        </div>
+
+        <!-- Concept 8: Frontend Implementation -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">8. Frontend Implementation</h5>
+          <div class="explanation">
+            <p>Store token in localStorage; decode for roles. Use React contexts or Vuex for state; conditional
+              rendering.</p>
+          </div>
+          <pre class="code-example"><code>// React with jwt-decode
+          import jwtDecode from 'jwt-decode';
+          
+          const [user, setUser] = useState(null);
+          
+          useEffect(() => {
+              const token = localStorage.getItem('token');
+              if (token) {
+                  const decoded = jwtDecode(token);
+                  setUser(decoded);  // { id: 1, role: 'admin' }
+              }
+          }, []);
+          
+          function AdminPanel() {
+              if (!user || user.role !== 'admin') return <p>Access Denied</p>;
+              return <div>Admin Content</div>;
+          }
+          
+          // Axios interceptor for auth
+          axios.interceptors.request.use(config => {
+              const token = localStorage.getItem('token');
+              if (token) config.headers.Authorization = `Bearer ${token}`;
+              return config;
+          });</code></pre>
+        </div>
+
+        <!-- Concept 9: Testing RBAC -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">9. Testing RBAC</h5>
+          <div class="explanation">
+            <p>Test with mocked users/roles. Laravel: factories for roles; Jest: mock auth middleware.</p>
+          </div>
+          <pre class="code-example"><code>// Laravel PHPUnit
+          public function test_admin_can_access() {
+              $admin = User::factory()->create(['role' => 'admin']);
+              $this->actingAs($admin);
+              
+              $response = $this->get('/admin');
+              $response->assertStatus(200);
+          }
+          
+          public function test_user_cannot_access() {
+              $user = User::factory()->create(['role' => 'user']);
+              $this->actingAs($user);
+              
+              $response = $this->get('/admin');
+              $response->assertStatus(403);
+          }
+          
+          // Jest (Node.js)
+          test('admin can access protected route', async () => {
+              const adminToken = generateToken({ role: 'admin' });
+              const res = await request(app)
+                  .get('/admin')
+                  .set('Authorization', `Bearer ${adminToken}`);
+              expect(res.status).toBe(200);
+          });</code></pre>
+        </div>
+
+        <!-- Concept 10: Best Practices and Security -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">10. Best Practices and Security</h5>
+          <div class="explanation">
+            <p>Least privilege; audit logs; avoid hardcoding roles. Use RBAC with ABAC for context (e.g., time-based).
+              Secure tokens with short expiry, refresh.</p>
+          </div>
+          <pre class="code-example"><code>// Audit log (Laravel)
+          Event::listen(function (AccessDenied $event) {
+              Log::warning('Access denied', [
+                  'user_id' => $event->user->id,
+                  'route' => request()->path(),
+                  'ip' => request()->ip()
+              ]);
+          });
+          
+          // Refresh token
+          app.post('/refresh', (req, res) => {
+              const refreshToken = req.body.refresh_token;
+              // Verify and issue new access token
+              const newToken = jwt.sign({ id: user.id, role: user.role }, 'secret', { expiresIn: '15m' });
+              res.json({ access_token: newToken });
+          });
+          
+          // Never: if (req.user.role === 'admin') { /* all actions */ }
+          // Better: Check per action</code></pre>
+        </div>
+
+        <div class="alert alert-info mt-4">
+          <p>This covers core Role-Based Authentication concepts. For advanced setups like Casbin or Spatie Laravel
+            Permission, check their docs. Always validate roles server-side; client-side is for UX only.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="py-4 small text-center text-muted-2">
+    <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/js/script.js"></script>
+  <script src="../../assets/js/smoke.js"></script>
+  <script>
+    // Inline script to update year (demo)
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>

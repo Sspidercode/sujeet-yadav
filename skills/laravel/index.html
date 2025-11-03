@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Skill - Laravel | Sujeet Yadav</title>
+  <meta name="description" content="Laravel skill details, intro and comprehensive concepts with examples" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../../assets/css/style.css" rel="stylesheet" />
+  <style>
+    .concept-section {
+      margin-bottom: 2rem;
+    }
+
+    .code-example {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 12px;
+      white-space: pre;
+      overflow: auto;
+      font-size: 0.875rem;
+    }
+
+    .explanation {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body class="theme-dark">
+  <canvas id="smokeCanvas"></canvas>
+  <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+    <div class="container py-2">
+      <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+      <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+    </div>
+  </nav>
+  <main class="section pt-6">
+    <div class="container">
+      <p class="eyebrow-v2">Skill</p>
+      <h1 class="title-v2 mb-2">Laravel</h1>
+      <p class="text-muted-2 small mb-4">Laravel framework expertise: REST APIs, Eloquent ORM, queues, events, policies,
+        testing, and deployments. Below is a comprehensive guide to key Laravel concepts with detailed explanations and
+        examples. (Assumes a Laravel project setup via Composer.)</p>
+
+      <div class="row g-4 align-items-start">
+        <div class="col-lg-4 text-center">
+          <img src="icon.svg" alt="Laravel icon" style="width:220px;height:220px;" />
+        </div>
+        <div class="col-lg-8">
+          <!-- Basic Example -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">Basic Example: Simple Route</h5>
+            <div class="explanation">
+              <p>This defines a basic GET route in <code>routes/web.php</code> that returns a string response,
+                showcasing Laravel's routing simplicity.</p>
+            </div>
+            <pre class="code-example"><code>Route::get('/hello', fn() => 'Hello Laravel');</code></pre>
+            <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+          </div>
+        </div>
+      </div>
+      <div class="row g-4 align-items-center">
+         <!-- Concept 1: Routing -->
+         <div class="panel-v2 concept-section">
+          <h5 class="mb-2">1. Routing</h5>
+          <div class="explanation">
+            <p>Laravel routes map URLs to actions (closures, controllers). Supports HTTP methods (GET, POST, PUT,
+              DELETE), route parameters, named routes, groups, and middleware. Defined in <code>routes/web.php</code>
+              or <code>routes/api.php</code>.</p>
+          </div>
+          <pre class="code-example"><code>// Basic route
+Route::get('/users/{id}', function ($id) {
+  return "User ID: $id";
+});
+
+// Named route with middleware
+Route::get('/profile', [ProfileController::class, 'show'])->name('profile')->middleware('auth');
+
+// Resource route (RESTful)
+Route::resource('posts', PostController::class);
+
+// Route group
+Route::prefix('admin')->group(function () {
+  Route::get('/dashboard', [AdminController::class, 'index']);
+});</code></pre>
+        </div>
+
+        <!-- Concept 2: Controllers -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">2. Controllers</h5>
+          <div class="explanation">
+            <p>Controllers handle route logic, separating concerns. Generated via
+              <code>php artisan make:controller</code>. Support dependency injection, resource controllers, and
+              method-specific requests.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+  public function index()
+  {
+      $users = User::all();
+      return view('users.index', compact('users'));
+  }
+
+  public function store(Request $request)
+  {
+      $validated = $request->validate([
+          'name' => 'required|string|max:255',
+          'email' => 'required|email|unique:users',
+      ]);
+
+      User::create($validated);
+      return redirect('/users');
+  }
+}</code></pre>
+        </div>
+
+        <!-- Concept 3: Eloquent ORM -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">3. Eloquent ORM</h5>
+          <div class="explanation">
+            <p>Eloquent provides an active-record implementation for database interactions. Models extend
+              <code>Illuminate\Database\Eloquent\Model</code>. Supports relationships (hasOne, hasMany, belongsTo,
+              many-to-many), queries, and mutators.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Post extends Model
+{
+  protected $fillable = ['title', 'content', 'user_id'];
+
+  // Relationship
+  public function user()
+  {
+      return $this->belongsTo(User::class);
+  }
+
+  // Query scope
+  public function scopePublished($query)
+  {
+      return $query->where('published_at', '&lt;=', now());
+  }
+}
+
+// Usage
+$posts = Post::published()->with('user')->get();
+$latest = Post::latest()->first();
+</code></pre>
+        </div>
+
+        <!-- Concept 4: Migrations -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">4. Migrations</h5>
+          <div class="explanation">
+            <p>Migrations are version-controlled database schema changes. Created with
+              <code>php artisan make:migration</code>. Use <code>up()</code> for apply, <code>down()</code> for
+              rollback. Supports schema building (tables, columns, indexes).</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+  public function up()
+  {
+      Schema::create('posts', function (Blueprint $table) {
+          $table->id();
+          $table->string('title');
+          $table->text('content');
+          $table->foreignId('user_id')->constrained()->onDelete('cascade');
+          $table->timestamps();
+      });
+  }
+
+  public function down()
+  {
+      Schema::dropIfExists('posts');
+  }
+};
+
+// Run: php artisan migrate
+</code></pre>
+        </div>
+
+        <!-- Concept 5: Blade Templates -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">5. Blade Templates</h5>
+          <div class="explanation">
+            <p>Blade is Laravel's templating engine for views. Supports directives (@if, @foreach, @extends),
+              components, sections, and escaping. Views are in <code>resources/views</code>.</p>
+          </div>
+          <pre class="code-example"><code>&lt;!-- resources/views/layouts/app.blade.php --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;@yield('title')&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  @yield('content')
+&lt;/body&gt;
+&lt;/html&gt;
+
+&lt;!-- resources/views/users/index.blade.php --&gt;
+@extends('layouts.app')
+
+@section('title', 'Users')
+
+@section('content')
+  @foreach($users as $user)
+      &lt;h2&gt;{{ $user->name }}&lt;/h2&gt;
+      @if($user->isAdmin)
+          &lt;p&gt;Admin user&lt;/p&gt;
+      @endif
+  @endforeach
+@endsection</code></pre>
+        </div>
+
+        <!-- Concept 6: Middleware -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">6. Middleware</h5>
+          <div class="explanation">
+            <p>Middleware filters HTTP requests (e.g., auth, rate limiting). Created with
+              <code>php artisan make:middleware</code>. Registered in <code>app/Http/Kernel.php</code> or routes.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class CheckAge
+{
+  public function handle(Request $request, Closure $next)
+  {
+      if ($request->age &lt;= 200) {
+          return redirect('home');
+      }
+
+      return $next($request);
+  }
+}
+
+// In routes/web.php
+Route::get('/admin', [AdminController::class, 'index'])
+  ->middleware(CheckAge::class);
+
+// Global middleware in Kernel.php: protected $middleware = [...]
+</code></pre>
+        </div>
+
+        <!-- Concept 7: Authentication -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">7. Authentication</h5>
+          <div class="explanation">
+            <p>Laravel Sanctum/Breeze/Jetstream for auth. Uses guards, providers. Commands like
+              <code>php artisan make:auth</code> (older) or Breeze for scaffolding. Supports sessions, tokens.</p>
+          </div>
+          <pre class="code-example"><code>// In controller
+use Illuminate\Support\Facades\Auth;
+
+public function login(Request $request)
+{
+  $credentials = $request->validate([
+      'email' => 'required|email',
+      'password' => 'required',
+  ]);
+
+  if (Auth::attempt($credentials)) {
+      $request->session()->regenerate();
+      return redirect()->intended('dashboard');
+  }
+
+  return back()->withErrors(['email' => 'Invalid credentials']);
+}
+
+// Logout
+Auth::logout();
+
+// Middleware: ->middleware('auth')
+
+// Sanctum for API: composer require laravel/sanctum
+</code></pre>
+        </div>
+
+        <!-- Concept 8: Queues -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">8. Queues</h5>
+          <div class="explanation">
+            <p>Queues handle background jobs for scalability. Uses drivers (database, Redis). Jobs created with
+              <code>php artisan make:job</code>. Dispatched via <code>dispatch()</code>.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+
+namespace App\Jobs;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+
+class SendEmail implements ShouldQueue
+{
+  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+  public function handle()
+  {
+      // Send email logic
+      Mail::to('user@example.com')->send(new WelcomeMail());
+  }
+}
+
+// Dispatch
+SendEmail::dispatch($user);
+
+// Config in .env: QUEUE_CONNECTION=database
+// Run: php artisan queue:work
+</code></pre>
+        </div>
+
+        <!-- Concept 9: Events and Listeners -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">9. Events and Listeners</h5>
+          <div class="explanation">
+            <p>Events decouple code; listeners react to them. Generated with <code>php artisan make:event</code> and
+              <code>make:listener</code>. Registered in <code>EventServiceProvider</code>.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+
+namespace App\Events;
+
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+class UserRegistered
+{
+  use Dispatchable, SerializesModels;
+
+  public $user;
+
+  public function __construct($user)
+  {
+      $this->user = $user;
+  }
+}
+
+&lt;?php
+
+namespace App\Listeners;
+
+use App\Events\UserRegistered;
+
+class SendWelcomeEmail
+{
+  public function handle(UserRegistered $event)
+  {
+      // Send email to $event->user
+  }
+}
+
+// In UserController
+event(new UserRegistered($user));
+
+// In EventServiceProvider
+protected $listen = [
+  UserRegistered::class => [SendWelcomeEmail::class],
+];
+</code></pre>
+        </div>
+
+        <!-- Concept 10: Testing -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">10. Testing</h5>
+          <div class="explanation">
+            <p>Laravel uses PHPUnit/Dusk for unit, feature, browser tests. Assertions, factories, refreshDatabase
+              trait. Run with <code>php artisan test</code>.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use App\Models\User;
+
+class UserTest extends TestCase
+{
+  use RefreshDatabase;
+
+  public function test_user_can_login()
+  {
+      $user = User::factory()->create();
+
+      $response = $this->post('/login', [
+          'email' => $user->email,
+          'password' => 'password',
+      ]);
+
+      $response->assertRedirect('/dashboard');
+      $this->assertAuthenticated();
+  }
+}
+
+// php artisan make:test UserTest --unit
+// php artisan test
+</code></pre>
+        </div>
+
+        <!-- Concept 11: Policies -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">11. Policies</h5>
+          <div class="explanation">
+            <p>Policies authorize actions on models. Created with <code>php artisan make:policy</code>. Used with
+              <code>authorize()</code> or gates in views.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use App\Models\Post;
+
+class PostPolicy
+{
+  public function update(User $user, Post $post)
+  {
+      return $user->id === $post->user_id;
+  }
+}
+
+// In Controller
+$this->authorize('update', $post);
+
+// In Blade: @can('update', $post) ... @endcan
+
+// Register in AuthServiceProvider
+protected $policies = [
+  Post::class => PostPolicy::class,
+];
+</code></pre>
+        </div>
+
+        <!-- Concept 12: Deployments -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">12. Deployments</h5>
+          <div class="explanation">
+            <p>Deploy via Forge/Envoyer, or manual (Composer install, env config, migrate). Use
+              <code>php artisan optimize</code> for production. CI/CD with GitHub Actions.</p>
+          </div>
+          <pre class="code-example"><code>// .env production
+APP_ENV=production
+APP_DEBUG=false
+DB_CONNECTION=mysql
+DB_HOST=...
+
+// Deployment script (e.g., in deploy.php)
+server('production', 'server.example.com')
+  ->stage('production')
+  ->user('deployer');
+
+task('deploy', [
+  'deploy:prepare',
+  'deploy:vendors',
+  'deploy:release',
+  'deploy:migrate',
+  'deploy:optimize',
+  'deploy:publish',
+  'deploy:symlink',
+  'deploy:restart',
+  'cleanup',
+]);</code></pre>
+        </div>
+
+        <div class="alert alert-info mt-4">
+          <p>This covers core Laravel concepts. For advanced topics like Horizon (queues), Nova (admin), or API
+            resources, refer to official docs. Always follow Laravel's coding standards for maintainability.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="py-4 small text-center text-muted-2">
+    <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/js/script.js"></script>
+  <script src="../../assets/js/smoke.js"></script>
+  <script>
+    // Inline script to update year (demo)
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>

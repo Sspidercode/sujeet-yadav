@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - CI/CD Pipelines | Sujeet Yadav</title>
+    <meta name="description" content="CI/CD pipelines skill details, intro, benefits, and examples" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+  </head>
+
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+
+    <!-- Main Section -->
+    <main class="section pt-6">
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">CI/CD Pipelines</h1>
+        <p class="text-muted-2 small mb-4">
+          Continuous Integration (CI) and Continuous Deployment (CD) automate the process of building, testing, and deploying applications to ensure faster and reliable software delivery.
+        </p>
+
+        <div class="row g-4 align-items-center mb-5">
+          <div class="col-lg-5 text-center">
+            <img src="icon.svg" alt="CI/CD icon" style="width:220px;height:220px;" />
+          </div>
+          <div class="col-lg-7">
+            <div class="panel-v2">
+              <h5 class="mb-2">Example Pipeline (GitHub Actions)</h5>
+              <pre class="small" style="background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:12px;white-space:pre;overflow:auto;"><code>name: CI
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        run: npm run deploy
+</code></pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-v2 mb-4">
+          <h5 class="mb-2">🔧 Common CI/CD Tools</h5>
+          <ul class="text-muted-2 small mb-0">
+            <li><strong>GitHub Actions</strong> – Integrates directly with GitHub for automated builds and deployments.</li>
+            <li><strong>Bitbucket Pipelines</strong> – Simple YAML-based CI/CD built into Bitbucket.</li>
+            <li><strong>GitLab CI/CD</strong> – Full-featured CI/CD with container support and environments.</li>
+            <li><strong>Jenkins</strong> – Open-source automation server for complex workflows.</li>
+            <li><strong>CircleCI</strong> – Cloud-based CI/CD service optimized for speed and scalability.</li>
+          </ul>
+        </div>
+
+        <div class="panel-v2 mb-4">
+          <h5 class="mb-2">🚀 Key Benefits</h5>
+          <ul class="text-muted-2 small mb-0">
+            <li>Faster and more reliable code deployments</li>
+            <li>Automatic testing ensures fewer bugs</li>
+            <li>Early detection of integration issues</li>
+            <li>Reduces manual deployment effort</li>
+            <li>Improves collaboration among developers and DevOps teams</li>
+          </ul>
+        </div>
+
+        <div class="panel-v2">
+          <h5 class="mb-2">🧠 Concept Overview</h5>
+          <p class="text-muted-2 small mb-0">
+            <strong>CI (Continuous Integration):</strong> Developers frequently merge code into a shared repository, where automated builds and tests verify the changes.
+          </p>
+          <p class="text-muted-2 small mb-0 mt-2">
+            <strong>CD (Continuous Deployment/Delivery):</strong> Automatically releases tested builds to production or staging environments without manual intervention.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+  </body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Skill - MVC Architecture | Sujeet Yadav</title>
+  <meta name="description" content="MVC Architecture skill details, intro and comprehensive concepts with examples" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../../assets/css/style.css" rel="stylesheet" />
+  <style>
+    .concept-section {
+      margin-bottom: 2rem;
+    }
+
+    .code-example {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 12px;
+      white-space: pre;
+      overflow: auto;
+      font-size: 0.875rem;
+    }
+
+    .explanation {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body class="theme-dark">
+  <canvas id="smokeCanvas"></canvas>
+  <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+    <div class="container py-2">
+      <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+      <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+    </div>
+  </nav>
+  <main class="section pt-6">
+    <div class="container">
+      <p class="eyebrow-v2">Skill</p>
+      <h1 class="title-v2 mb-2">MVC Architecture</h1>
+      <p class="text-muted-2 small mb-4">Separation of concerns with Models, Views, Controllers; clean code and
+        testability. Below is a comprehensive guide to key MVC concepts with detailed explanations and examples.
+        (Examples use PHP for Laravel-like structure, adaptable to other languages/frameworks.)</p>
+
+      <div class="row g-4 align-items-start">
+        <div class="col-lg-4 text-center">
+          <img src="icon.svg" alt="MVC icon" style="width:220px;height:220px;" />
+        </div>
+        <div class="col-lg-8">
+          <!-- Basic Example -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">Basic Example: MVC Flow</h5>
+            <div class="explanation">
+              <p>This illustrates the unidirectional flow: User request → Controller → Model (data) → View (render) →
+                Response.</p>
+            </div>
+            <pre class="code-example"><code>Model -> Controller -> View</code></pre>
+            <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+          </div>
+        </div>
+      </div>
+      <div class="row g-4 align-items-center">
+        <!-- Concept 1: Overview of MVC Pattern -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">1. Overview of MVC Pattern</h5>
+          <div class="explanation">
+            <p>MVC divides apps into Model (data/logic), View (UI), Controller (input handling). Promotes modularity,
+              reusability, and maintainability. Originated in Smalltalk; now foundational in web frameworks like
+              Laravel, Rails, Django.</p>
+          </div>
+          <pre class="code-example"><code>// High-level flow
+// 1. Request to Controller
+// 2. Controller queries Model
+// 3. Model fetches/validates data
+// 4. Controller passes data to View
+// 5. View renders HTML/JSON
+// Response back to user</code></pre>
+        </div>
+
+        <!-- Concept 2: Models -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">2. Models</h5>
+          <div class="explanation">
+            <p>Models represent data and business rules. Interact with database/storage; handle CRUD, validation,
+              relationships. Independent of UI; testable in isolation.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+// app/Models/User.php (Laravel-style)
+class User {
+  private $db;
+  
+  public function __construct($db) {
+      $this->db = $db;
+  }
+  
+  public function find($id) {
+      $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
+      $stmt->execute([$id]);
+      return $stmt->fetch(PDO::FETCH_ASSOC);
+  }
+  
+  public function create($data) {
+      // Validation
+      if (empty($data['email'])) {
+          throw new Exception('Email required');
+      }
+      // Insert logic
+      $stmt = $this->db->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+      $stmt->execute([$data['name'], $data['email']]);
+      return $this->db->lastInsertId();
+  }
+}</code></pre>
+        </div>
+
+        <!-- Concept 3: Views -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">3. Views</h5>
+          <div class="explanation">
+            <p>Views handle presentation/rendering. Receive data from controllers; generate HTML, JSON, etc. Keep
+              logic-free; use templates (e.g., Blade, Twig) for separation.</p>
+          </div>
+          <pre class="code-example"><code>&lt;!-- resources/views/users/show.blade.php --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;User Profile&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;{{ $user['name'] }}&lt;/h1&gt;
+  &lt;p&gt;Email: {{ $user['email'] }}&lt;/p&gt;
+  @if(isset($posts))
+      &lt;ul&gt;
+          @foreach($posts as $post)
+              &lt;li&gt;{{ $post['title'] }}&lt;/li&gt;
+          @endforeach
+      &lt;/ul&gt;
+  @endif
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+
+        <!-- Concept 4: Controllers -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">4. Controllers</h5>
+          <div class="explanation">
+            <p>Controllers mediate input: process requests, interact with models, select views. Handle routing,
+              validation, sessions. Thin layer; delegate to services/models.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+// app/Http/Controllers/UserController.php
+class UserController {
+  private $userModel;
+  
+  public function __construct(User $userModel) {
+      $this->userModel = $userModel;
+  }
+  
+  public function show($id) {
+      try {
+          $user = $this->userModel->find($id);
+          if (!$user) {
+              return response()->json(['error' => 'User not found'], 404);
+          }
+          // For API
+          return response()->json($user);
+          
+          // For web: Load view
+          $posts = $this->postModel->getByUser($id);
+          return view('users.show', compact('user', 'posts'));
+      } catch (Exception $e) {
+          // Error handling
+          return response()->json(['error' => $e->getMessage()], 500);
+      }
+  }
+}</code></pre>
+        </div>
+
+        <!-- Concept 5: Routing in MVC -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">5. Routing in MVC</h5>
+          <div class="explanation">
+            <p>Routes map URLs to controllers/methods. Centralized config; supports parameters, middleware. Ensures
+              requests reach the right controller.</p>
+          </div>
+          <pre class="code-example"><code>// routes/web.php (Laravel)
+Route::get('/users', [UserController::class, 'index']);
+Route::get('/users/{id}', [UserController::class, 'show']);
+Route::post('/users', [UserController::class, 'store']);
+
+// Custom route with middleware
+Route::get('/admin/users', [UserController::class, 'adminIndex'])
+  ->middleware('auth')
+  ->name('admin.users');
+
+// In plain PHP (e.g., with a router lib)
+$router->get('/users/{id:\d+}', function ($id) {
+  $controller = new UserController();
+  return $controller->show($id);
+});</code></pre>
+        </div>
+
+        <!-- Concept 6: Data Flow and Separation of Concerns -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">6. Data Flow and Separation of Concerns</h5>
+          <div class="explanation">
+            <p>Flow: Request → Controller (orchestrates) → Model (data) → View (display). Strict separation: No direct
+              Model-View communication; enhances testability and scalability.</p>
+          </div>
+          <pre class="code-example"><code>// Flow diagram in comments
+/*
+User Request (GET /users/1)
+↓
+Controller::show(1)
+↓ Calls
+Model::find(1) → DB Query → Returns User Data
+↓ Processes
+Controller prepares data (e.g., joins)
+↓ Passes to
+View::render(user) → Generates HTML
+↓
+Response to User
+*/</code></pre>
+        </div>
+
+        <!-- Concept 7: Testing in MVC -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">7. Testing in MVC</h5>
+          <div class="explanation">
+            <p>MVC enables isolated testing: Unit tests for models (logic), controllers (responses), views (rendering).
+              Integration tests for full flow. Use mocks for dependencies.</p>
+          </div>
+          <pre class="code-example"><code>&lt;?php
+// tests/Unit/UserModelTest.php
+use PHPUnit\Framework\TestCase;
+
+class UserModelTest extends TestCase {
+  public function testFindReturnsUser() {
+      $mockDb = $this->createMock(PDO::class);
+      $mockStmt = $this->createMock(PDOStatement::class);
+      $mockStmt->method('fetch')->willReturn(['id' => 1, 'name' => 'Sujeet']);
+      $mockDb->method('prepare')->willReturn($mockStmt);
+      
+      $model = new User($mockDb);
+      $result = $model->find(1);
+      
+      $this->assertEquals('Sujeet', $result['name']);
+  }
+}
+
+// Run: php artisan test</code></pre>
+        </div>
+
+        <!-- Concept 8: MVC in Frameworks -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">8. MVC in Frameworks</h5>
+          <div class="explanation">
+            <p>Frameworks enforce MVC: Laravel (Eloquent models, Blade views), Express.js (routes/controllers,
+              templates). Reduces boilerplate; adds features like dependency injection.</p>
+          </div>
+          <pre class="code-example"><code>// Laravel full example
+// Route: Route::get('/users/{id}', [UserController::class, 'show']);
+
+// Controller as above
+
+// Model as above
+
+// View as above
+
+// Express.js equivalent
+const express = require('express');
+const app = express();
+const User = require('./models/User');  // Mongoose model
+
+app.get('/users/:id', async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) return res.status(404).json({ error: 'Not found' });
+  res.render('users/show', { user });  // Pug/EJS view
+});</code></pre>
+        </div>
+
+        <!-- Concept 9: Variations and Extensions -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">9. Variations and Extensions</h5>
+          <div class="explanation">
+            <p>MVC variants: MVP (Presenter), MVVM (ViewModel for data binding). Extend with services/repositories for
+              complex logic; HMVC for modular apps.</p>
+          </div>
+          <pre class="code-example"><code>// Repository pattern extension
+class UserRepository {
+  public function find($id) {
+      // Abstract DB access
+      return DB::table('users')->find($id);
+  }
+}
+
+// Controller uses repo
+class UserController {
+  private $repo;
+  public function __construct(UserRepository $repo) {
+      $this->repo = $repo;
+  }
+  public function show($id) {
+      $user = $this->repo->find($id);
+      return view('users.show', ['user' => $user]);
+  }
+}</code></pre>
+        </div>
+
+        <!-- Concept 10: Best Practices and Pitfalls -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">10. Best Practices and Pitfalls</h5>
+          <div class="explanation">
+            <p>Best: Keep controllers thin, use DI, validate inputs. Pitfalls: Fat models (extract services), direct DB
+              in views, ignoring separation (leads to spaghetti code).</p>
+          </div>
+          <pre class="code-example"><code>// Best: Validation in controller
+public function store(Request $request) {
+  $validated = $request->validate([
+      'name' => 'required|string|max:255',
+      'email' => 'required|email|unique:users'
+  ]);
+  $userId = $this->userModel->create($validated);
+  return redirect("/users/{$userId}")->with('success', 'User created');
+}
+
+// Pitfall: Avoid fat controller
+// BAD: Controller with DB queries
+// GOOD: Delegate to model/service</code></pre>
+        </div>
+
+        <div class="alert alert-info mt-4">
+          <p>This covers core MVC concepts. For deeper dives, explore framework-specific implementations or patterns
+            like Flux for frontend. MVC remains a cornerstone for scalable web apps.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="py-4 small text-center text-muted-2">
+    <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/js/script.js"></script>
+  <script src="../../assets/js/smoke.js"></script>
+  <script>
+    // Inline script to update year (demo)
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>

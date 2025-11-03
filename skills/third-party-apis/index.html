@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - Third-Party APIs | Sujeet Yadav</title>
+    <meta name="description" content="Third-Party APIs skill details, intro and comprehensive concepts with examples" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .concept-section { margin-bottom: 2rem; }
+      .code-example { background: #0b0d12; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px; white-space: pre; overflow: auto; font-size: 0.875rem; }
+      .explanation { margin-bottom: 1rem; }
+    </style>
+  </head>
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+    <main class="section pt-6">
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">Third-Party APIs</h1>
+        <p class="text-muted-2 small mb-4">Integration with external services (OAuth, webhooks, rate limits) and robust error handling. Below is a comprehensive guide to key third-party API integration concepts with detailed explanations and examples. (Examples use Node.js/Axios and PHP/Guzzle; adaptable to other clients.)</p>
+        
+        <div class="row g-4 align-items-start">
+          <div class="col-lg-4 text-center">
+            <img src="icon.svg" alt="APIs icon" style="width:220px;height:220px;"/>
+          </div>
+          <div class="col-lg-8">
+            <!-- Basic Example -->
+            <div class="panel-v2 concept-section">
+              <h5 class="mb-2">Basic Example: Simple GET Request</h5>
+              <div class="explanation">
+                <p>This HTTP GET request fetches data from an external API endpoint, the foundation of third-party integrations.</p>
+              </div>
+              <pre class="code-example"><code>GET https://api.example.com/data</code></pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+        <div class="row g-4 align-items-center">
+          <!-- Concept 1: HTTP Clients -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">1. HTTP Clients</h5>
+            <div class="explanation">
+              <p>Use libraries for requests: Axios (Node.js), Guzzle (PHP). Handle headers, params, timeouts; promises/async for non-blocking.</p>
+            </div>
+            <pre class="code-example"><code>// Node.js with Axios
+const axios = require('axios');
+
+async function fetchData() {
+try {
+  const response = await axios.get('https://api.example.com/data', {
+    params: { limit: 10 },
+    timeout: 5000
+  });
+  console.log(response.data);
+} catch (error) {
+  console.error('Error:', error.message);
+}
+}
+fetchData();
+
+// PHP with Guzzle
+$client = new \GuzzleHttp\Client();
+$response = $client->request('GET', 'https://api.example.com/data', [
+  'query' => ['limit' => 10],
+  'timeout' => 5
+]);
+echo $response->getBody();</code></pre>
+          </div>
+
+          <!-- Concept 2: Authentication Methods -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">2. Authentication Methods</h5>
+            <div class="explanation">
+              <p>API keys (header/query), Basic Auth, OAuth 2.0 (bearer tokens). Store secrets securely (env vars); refresh tokens automatically.</p>
+            </div>
+            <pre class="code-example"><code>// API Key (Axios)
+axios.get('https://api.example.com/data', {
+headers: { 'X-API-Key': process.env.API_KEY }
+});
+
+// OAuth 2.0 Bearer (Guzzle)
+$client = new \GuzzleHttp\Client();
+$response = $client->request('GET', 'https://api.example.com/data', [
+  'headers' => [
+      'Authorization' => 'Bearer ' . $accessToken,
+      'Content-Type' => 'application/json'
+  ]
+]);
+
+// Basic Auth
+$response = $client->request('GET', 'https://api.example.com/data', [
+  'auth' => ['username', 'password']
+]);</code></pre>
+          </div>
+
+          <!-- Concept 3: OAuth 2.0 Flows -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">3. OAuth 2.0 Flows</h5>
+            <div class="explanation">
+              <p>Authorization Code (web apps), Client Credentials (server-to-server), Implicit (SPA). Use libraries like passport.js or league/oauth2-client.</p>
+            </div>
+            <pre class="code-example"><code>// Node.js with passport-oauth2 (Authorization Code)
+const passport = require('passport');
+const OAuth2Strategy = require('passport-oauth2').Strategy;
+
+passport.use('oauth2', new OAuth2Strategy({
+  authorizationURL: 'https://provider.com/oauth/authorize',
+  tokenURL: 'https://provider.com/oauth/token',
+  clientID: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+  callbackURL: '/auth/callback'
+}, (accessToken, refreshToken, profile, done) => {
+  // Save tokens
+  return done(null, { accessToken });
+}));
+
+// Redirect
+app.get('/auth', passport.authenticate('oauth2'));
+
+// Callback
+app.get('/auth/callback', passport.authenticate('oauth2'), (req, res) => {
+  res.redirect('/dashboard');
+});
+
+// PHP (league/oauth2-client)
+$provider = new League\OAuth2\Client\Provider\GenericProvider([
+  'clientId' => $clientId,
+  'clientSecret' => $clientSecret,
+  'redirectUri' => $redirectUri,
+  'urlAuthorize' => $authUrl,
+  'urlAccessToken' => $tokenUrl,
+  'urlResourceOwnerDetails' => $userUrl
+]);
+$accessToken = $provider->getAccessToken('authorization_code', ['code' => $_GET['code']]);</code></pre>
+          </div>
+
+          <!-- Concept 4: Rate Limiting -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">4. Rate Limiting</h5>
+            <div class="explanation">
+              <p>Respect limits (e.g., 1000/hour); use exponential backoff on 429. Track with queues or Redis; headers like X-RateLimit-Remaining.</p>
+            </div>
+            <pre class="code-example"><code>// Axios with retry on 429
+const axiosRetry = require('axios-retry');
+
+axiosRetry(axios, {
+retries: 3,
+retryDelay: axiosRetry.exponentialDelay,
+retryCondition: (error) => error.response?.status === 429
+});
+
+async function rateLimitedRequest() {
+try {
+  const res = await axios.get('https://api.example.com/data');
+  console.log(res.headers['x-ratelimit-remaining']);
+} catch (error) {
+  if (error.response?.status === 429) {
+    const retryAfter = error.response.headers['retry-after'];
+    console.log(`Rate limited. Retry after ${retryAfter}s`);
+  }
+}
+}
+
+// PHP Guzzle with handler
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+
+$stack = HandlerStack::create();
+$stack->push(Middleware::retry(function ($retries, $request, $response, $exception) {
+  return $response->getStatusCode() === 429 && $retries < 3;
+}));
+
+$client = new \GuzzleHttp\Client(['handler' => $stack]);</code></pre>
+          </div>
+
+          <!-- Concept 5: Webhooks -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">5. Webhooks</h5>
+            <div class="explanation">
+              <p>Receive events via POST to your endpoint. Verify signatures; process asynchronously with queues. Retry failed deliveries.</p>
+            </div>
+            <pre class="code-example"><code>// Express webhook endpoint
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+const signature = req.headers['x-signature'];
+const payload = req.body;
+
+// Verify HMAC
+const expectedSig = 'sha256=' + crypto.createHmac('sha256', process.env.WEBHOOK_SECRET).update(payload).digest('hex');
+if (signature !== expectedSig) {
+  return res.status(401).send('Invalid signature');
+}
+
+// Process (e.g., queue job)
+processWebhook(payload);
+res.status(200).send('OK');
+});
+
+// PHP (Guzzle for outgoing, endpoint for incoming)
+public function webhook(Request $request) {
+  $payload = $request->getContent();
+  $signature = $request->header('X-Signature');
+  
+  $expected = 'sha256=' . hash_hmac('sha256', $payload, env('WEBHOOK_SECRET'));
+  if (!hash_equals($expected, $signature)) {
+      abort(401, 'Invalid signature');
+  }
+  
+  // Dispatch job
+  WebhookJob::dispatch(json_decode($payload, true));
+  return response('OK', 200);
+}</code></pre>
+          </div>
+
+          <!-- Concept 6: Error Handling -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">6. Error Handling</h5>
+            <div class="explanation">
+              <p>Catch HTTP errors (4xx/5xx); log with context. Graceful fallbacks; circuit breakers for flaky APIs.</p>
+            </div>
+            <pre class="code-example"><code>// Axios interceptor
+axios.interceptors.response.use(
+(response) => response,
+(error) => {
+  if (error.response) {
+    // Server responded with error status
+    console.error(`Error ${error.response.status}: ${error.response.data}`);
+    if (error.response.status === 503) {
+      // Fallback to cache
+    }
+  } else if (error.request) {
+    // Network error
+    console.error('Network error:', error.message);
+  }
+  return Promise.reject(error);
+}
+);
+
+// PHP try-catch
+try {
+  $response = $client->request('GET', 'https://api.example.com/data');
+} catch (\GuzzleHttp\Exception\RequestException $e) {
+  if ($e->getResponse() && $e->getResponse()->getStatusCode() === 404) {
+      Log::warning('Resource not found: ' . $e->getMessage());
+      // Return default data
+  } elseif ($e->getCode() === CURLE_OPERATION_TIMEDOUT) {
+      // Retry logic
+  }
+  throw $e;  // Re-throw if needed
+}</code></pre>
+          </div>
+
+          <!-- Concept 7: Data Transformation -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">7. Data Transformation</h5>
+            <div class="explanation">
+              <p>Map external schemas to internal models. Use transformers/serializers; handle versioning for changes.</p>
+            </div>
+            <pre class="code-example"><code>// Node.js (lodash transform)
+const _ = require('lodash');
+
+function transformUser(apiUser) {
+return _.pick(apiUser, ['id', 'name', 'email']).name = apiUser.full_name;  // Map fields
+}
+
+const apiData = await axios.get('/external/users');
+const internalUsers = apiData.data.map(transformUser);
+
+// PHP (custom class)
+class UserTransformer {
+  public static function transform(array $apiUser): array {
+      return [
+          'id' => $apiUser['user_id'],
+          'name' => $apiUser['full_name'],
+          'email' => $apiUser['email_address']
+      ];
+  }
+}
+
+$apiData = json_decode($response->getBody(), true);
+$internalUsers = array_map([UserTransformer::class, 'transform'], $apiData['users']);</code></pre>
+          </div>
+
+          <!-- Concept 8: Caching -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">8. Caching</h5>
+            <div class="explanation">
+              <p>Cache responses (Redis, in-memory) to reduce calls. Invalidate on webhooks; use ETags for conditional requests.</p>
+            </div>
+            <pre class="code-example"><code>// Node.js with node-cache
+const NodeCache = require('node-cache');
+const cache = new NodeCache({ stdTTL: 300 });  // 5 min
+
+async function getCachedData(url) {
+const key = `api:${url}`;
+let data = cache.get(key);
+if (!data) {
+  const res = await axios.get(url);
+  data = res.data;
+  cache.set(key, data);
+}
+return data;
+}
+
+// PHP with Redis
+$redis = new Redis();
+$key = 'api:data:' . md5($url);
+$data = $redis->get($key);
+if (!$data) {
+  $response = $client->request('GET', $url);
+  $data = json_decode($response->getBody(), true);
+  $redis->setex($key, 300, json_encode($data));  // 5 min TTL
+}</code></pre>
+          </div>
+
+          <!-- Concept 9: Security Practices -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">9. Security Practices</h5>
+            <div class="explanation">
+              <p>Sanitize inputs, validate responses; use HTTPS. Avoid exposing secrets; monitor for anomalies with logs.</p>
+            </div>
+            <pre class="code-example"><code>// Validate response schema (Joi)
+const schema = Joi.object({ id: Joi.number().required() });
+const { error } = schema.validate(response.data);
+if (error) {
+  console.warn('Invalid API response:', error);
+  // Fallback or alert
+}
+
+// PHP input sanitization for outgoing
+$query = http_build_query(array_map('htmlspecialchars', $params));
+
+// Logs with context
+Log::info('API call', [
+  'url' => $url,
+  'method' => 'GET',
+  'response_code' => $response->getStatusCode(),
+  'user_id' => auth()->id()
+]);</code></pre>
+          </div>
+
+          <!-- Concept 10: Testing Integrations -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">10. Testing Integrations</h5>
+            <div class="explanation">
+              <p>Mock APIs with nock (Node.js) or HTTP tests; use VCR for recording. Test edge cases: timeouts, 5xx errors.</p>
+            </div>
+            <pre class="code-example"><code>// Jest with nock
+const nock = require('nock');
+
+test('fetches data from API', async () => {
+nock('https://api.example.com')
+  .get('/data')
+  .reply(200, { id: 1, name: 'Test' });
+  
+const data = await fetchData();
+expect(data.id).toBe(1);
+});
+
+// Laravel with HTTP fake
+test('calls external API', function () {
+  Http::fake([
+      'api.example.com/*' => Http::response(['id' => 1], 200)
+  ]);
+  
+  $response = $this->get('/integrate');
+  Http::assertSent(function ($request) {
+      return $request->url() === 'https://api.example.com/data';
+  });
+});</code></pre>
+          </div>
+
+          <div class="alert alert-info mt-4">
+            <p>This covers core third-party API integration concepts. For specific services (e.g., Stripe, Twilio), consult their docs. Always handle failures gracefully and monitor usage costs.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+    <script>
+      // Inline script to update year (demo)
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

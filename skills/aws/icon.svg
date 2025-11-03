@@ -1,0 +1,11 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff1e56"/>
+      <stop offset="100%" stop-color="#6d5ef9"/>
+    </linearGradient>
+  </defs>
+  <circle cx="120" cy="120" r="100" fill="url(#g)" opacity="0.9"/>
+  <circle cx="120" cy="120" r="110" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="4" stroke-dasharray="10 10"/>
+  <text x="50%" y="52%" text-anchor="middle" fill="#ffffff" font-family="Poppins, Arial" font-weight="700" font-size="44">AWS</text>
+</svg>

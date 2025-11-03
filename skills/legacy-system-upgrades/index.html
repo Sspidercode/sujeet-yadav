@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - Legacy System Upgrades | Sujeet Yadav</title>
+    <meta name="description" content="Legacy System Upgrades skill details, intro and comprehensive concepts with examples" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .concept-section { margin-bottom: 2rem; }
+      .code-example { background: #0b0d12; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px; white-space: pre; overflow: auto; font-size: 0.875rem; }
+      .explanation { margin-bottom: 1rem; }
+    </style>
+  </head>
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+    <main class="section pt-6">
+
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">Legacy System Upgrades</h1>
+        <p class="text-muted-2 small mb-4">Modernizing legacy stacks (e.g., CI3->CI4, PHP versions), refactors, and safe migrations. Below is a comprehensive guide to key concepts with detailed explanations and examples.</p>
+        
+        <div class="row g-4 align-items-start">
+          <div class="col-lg-4 text-center">
+            <img src="icon.svg" alt="Legacy Upgrades icon" style="width:220px;height:220px;"/>
+          </div>
+          <div class="col-lg-8">
+            <!-- Basic Example -->
+            <div class="panel-v2 concept-section">
+              <h5 class="mb-2">Basic Example: CI3 to CI4 Route Migration</h5>
+              <div class="explanation">
+                <p>This shows a simple migration of routes from CodeIgniter 3's <code>routes.php</code> to CI4's <code>Routes.php</code>, highlighting the shift to object-oriented routing.</p>
+              </div>
+              <pre class="code-example"><code>// CI3 routes.php -> CI4 Routes.php migration
+$routes->get('home', 'Home::index');</code></pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+        <div class="row g-4 align-items-center">
+          <!-- Concept 1: Assessment and Planning -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">1. Assessment and Planning</h5>
+            <div class="explanation">
+              <p>Begin by auditing the legacy codebase: identify dependencies, technical debt, and risks. Tools like PHPStan or SonarQube help analyze code quality. Plan incrementally to minimize downtime.</p>
+            </div>
+            <pre class="code-example"><code>// Example: Using Composer to install analysis tools
+composer require --dev phpstan/phpstan
+./vendor/bin/phpstan analyse app/ --level=5
+
+// Output: Reports code smells, unused code, etc.
+// Plan: Prioritize high-risk modules (e.g., auth) for first migration</code></pre>
+          </div>
+
+          <!-- Concept 2: Refactoring Techniques -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">2. Refactoring Techniques</h5>
+            <div class="explanation">
+              <p>Refactor in small, testable steps: extract methods, reduce coupling, apply SOLID principles. Focus on single responsibility; use namespaces and type hints in modern PHP.</p>
+            </div>
+            <pre class="code-example"><code>// Legacy: Monolithic function (PHP 5.x style)
+function processUser($id) {
+  // DB query, validation, email, logging all mixed
+  $user = getUser($id);
+  if (valid($user)) {
+      updateUser($user);
+      sendEmail($user);
+  }
+  logAction($id);
+}
+
+// Refactored: Separated concerns (PHP 8+)
+class UserService {
+  public function processUser(int $id): void {
+      $user = $this->userRepository->find($id);
+      $validator = new UserValidator();
+      if ($validator->validate($user)) {
+          $this->userRepository->update($user);
+          (new EmailService())->send($user);
+      }
+      $this->logger->log('Processed user ' . $id);
+  }
+}</code></pre>
+          </div>
+
+          <!-- Concept 3: Migration Strategies -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">3. Migration Strategies</h5>
+            <div class="explanation">
+              <p>Use the Strangler Fig Pattern for gradual replacement: wrap legacy code in facades while building new modules. Alternatives: Incremental (parallel run old/new) or Big Bang (full rewrite, high risk).</p>
+            </div>
+            <pre class="code-example"><code>// Strangler Pattern: Facade wrapping legacy
+class LegacyUserFacade {
+  private $legacyApp;
+  
+  public function getUser(int $id) {
+      // Call legacy via include or API
+      include 'legacy/user.php';
+      return getUserFromLegacy($id);  // Proxy to old code
+  }
+  
+  // Gradually replace methods with new impl
+  public function updateUser(User $user) {
+      // New: Use Eloquent or PDO
+      DB::table('users')->update($user->toArray());
+  }
+}
+
+// Route: Switch based on feature flag
+if (config('app.use_new_user')) {
+  $facade->updateUser($user);  // New
+} else {
+  $facade->getUser($id);  // Legacy
+}</code></pre>
+          </div>
+
+          <!-- Concept 4: PHP Version Upgrades -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">4. PHP Version Upgrades</h5>
+            <div class="explanation">
+              <p>Upgrade stepwise (e.g., PHP 7.4 → 8.0 → 8.3). Use tools like Rector for automated fixes (deprecated functions, syntax). Test for compatibility with extensions and third-party libs.</p>
+            </div>
+            <pre class="code-example"><code>// Install Rector for upgrades
+composer require --dev rector/rector
+vendor/bin/rector process src/ --set php81  // Upgrades to PHP 8.1 features
+
+// Example fix: Legacy create_function() -> Arrow fn
+// Legacy
+$sort = create_function('$a,$b', 'return strnatcmp($a["name"], $b["name"]);');
+usort($array, $sort);
+
+// Rector-upgraded
+$sort = fn($a, $b) => strnatcmp($a['name'], $b['name']);
+usort($array, $sort);</code></pre>
+          </div>
+
+          <!-- Concept 5: Framework Migrations (CI3 to CI4) -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">5. Framework Migrations (CI3 to CI4)</h5>
+            <div class="explanation">
+              <p>CI4 introduces namespaces, PSR-4 autoloading, and a public/ folder for security. Migrate models/controllers with namespaces; replace hooks with events. Start fresh and port incrementally.</p>
+            </div>
+            <pre class="code-example"><code>// CI3 Controller
+class Home extends CI_Controller {
+  public function index() {
+      $this->load->view('home');
+  }
+}
+
+// CI4 Controller
+namespace App\Controllers;
+use CodeIgniter\Controller;
+
+class Home extends Controller {
+  public function index() {
+      echo view('home');
+  }
+}
+
+// Routing in app/Config/Routes.php
+$routes->get('/', 'Home::index');
+
+// Model: Add namespace and extend Model
+namespace App\Models;
+use CodeIgniter\Model;
+
+class UserModel extends Model {
+  protected $table = 'users';
+}</code></pre>
+          </div>
+
+          <!-- Concept 6: Testing During Upgrades -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">6. Testing During Upgrades</h5>
+            <div class="explanation">
+              <p>Implement TDD/BDD: Write tests before refactoring to ensure no regressions. Use PHPUnit for unit/integration; tools like Behat for acceptance. Aim for 80%+ coverage on migrated code.</p>
+            </div>
+            <pre class="code-example"><code>// PHPUnit test for migrated function
+use PHPUnit\Framework\TestCase;
+
+class UserServiceTest extends TestCase {
+  public function testProcessUserUpdatesDatabase() {
+      $service = new UserService();
+      $mockRepo = $this->createMock(UserRepository::class);
+      $mockRepo->expects($this->once())->method('update');
+      $service->setRepository($mockRepo);
+      
+      $service->processUser(1);
+      $this->assertTrue(true);  // Or assert on mocks
+  }
+}
+
+// Run: ./vendor/bin/phpunit tests/</code></pre>
+          </div>
+
+          <!-- Concept 7: Tools for Automation -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">7. Tools for Automation</h5>
+            <div class="explanation">
+              <p>Leverage Rector for code upgrades, PHP-CS-Fixer for standards, and Docker for isolated testing environments. CI/CD pipelines (GitHub Actions) automate checks during migration.</p>
+            </div>
+            <pre class="code-example"><code>// PHP-CS-Fixer for style
+composer require --dev friendsofphp/php-cs-fixer
+./vendor/bin/php-cs-fixer fix src/ --rules=@PSR12
+
+// GitHub Actions workflow for migration checks
+name: Migration Lint
+on: [push]
+jobs:
+rector:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v2
+    - run: composer install
+    - run: vendor/bin/rector process src/ --dry-run</code></pre>
+          </div>
+
+          <!-- Concept 8: Safe Deployment and Rollback -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">8. Safe Deployment and Rollback</h5>
+            <div class="explanation">
+              <p>Use feature flags to toggle between old/new code. Blue-green deployments minimize risk; prepare rollback scripts. Monitor post-deploy with tools like New Relic.</p>
+            </div>
+            <pre class="code-example"><code>// Feature flag in config
+// config/app.php
+'features' => [
+  'new_user_service' => env('NEW_USER_SERVICE', false),
+];
+
+// In code
+if (config('app.features.new_user_service')) {
+  $newService->process($data);
+} else {
+  include 'legacy/process.php';
+}
+
+// Rollback: Set env var to false, deploy revert</code></pre>
+          </div>
+
+          <div class="alert alert-info mt-4">
+            <p>This covers core concepts for legacy system upgrades. For specific stacks, consult official docs (e.g., CodeIgniter upgrade guide). Always prioritize testing and incremental changes to avoid disruptions.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+    <script>
+      // Inline script to update year (demo)
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

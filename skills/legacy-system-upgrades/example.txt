@@ -1,0 +1,2 @@
+// CI3 routes.php -> CI4 Routes.php migration
+$routes->get('home', 'Home::index');

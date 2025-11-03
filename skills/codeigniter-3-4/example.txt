@@ -1,0 +1,3 @@
+<?php
+// In app/Config/Routes.php (CI4)
+$routes->get('hello', 'Home::index');

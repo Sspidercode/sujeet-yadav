@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - PHP | Sujeet Yadav</title>
+    <meta name="description" content="PHP skill details, intro and comprehensive concepts with examples" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .concept-section { margin-bottom: 2rem; }
+      .code-example { background: #0b0d12; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px; white-space: pre; overflow: auto; font-size: 0.875rem; }
+      .explanation { margin-bottom: 1rem; }
+    </style>
+  </head>
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+    <main class="section pt-6">
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">PHP</h1>
+        <p class="text-muted-2 small mb-4">General-purpose scripting language especially suited to web development. Experienced with modern PHP practices, OOP, and frameworks. Below is a comprehensive guide to key PHP concepts with detailed explanations and examples. (Examples use PHP 8.3+; run in a web server or CLI.)</p>
+        
+        <div class="row g-4 align-items-start">
+          <div class="col-lg-4 text-center">
+            <img src="icon.svg" alt="PHP icon" style="width:220px;height:220px;"/>
+          </div>
+          <div class="col-lg-8">
+            <!-- Basic Example -->
+            <div class="panel-v2 concept-section">
+              <h5 class="mb-2">Basic Example: Echo Statement</h5>
+              <div class="explanation">
+                <p>This simple script outputs a string to the browser or console, showcasing PHP's basic syntax for web or CLI execution.</p>
+              </div>
+              <pre class="code-example"><code>&lt;?php
+echo 'Hello, PHP!';
+</code></pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+        <div class="row g-4 align-items-center">
+                      <!-- Concept 1: Syntax and Variables -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">1. Syntax and Variables</h5>
+                        <div class="explanation">
+                          <p>PHP scripts start with &lt;?php and end with ?&gt;. Variables use $ prefix; types include scalar (int, string, bool) and compound (array, object). Strict typing with declare(strict_types=1).</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          declare(strict_types=1);
+          
+          $name = 'Sujeet';  // String
+          $age = 30;         // Integer
+          $isDev = true;     // Boolean
+          
+          echo "Name: $name, Age: $age";  // Interpolation
+          
+          // Type check
+          var_dump($name);  // string(6) "Sujeet"
+          </code></pre>
+                      </div>
+          
+                      <!-- Concept 2: Control Structures -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">2. Control Structures</h5>
+                        <div class="explanation">
+                          <p>Conditionals (if/else, switch) and loops (for, while, foreach) control flow. Use === for strict comparison.</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          $score = 85;
+          
+          if ($score >= 90) {
+              echo 'A';
+          } elseif ($score >= 80) {
+              echo 'B';
+          } else {
+              echo 'C';
+          }
+          
+          // Switch
+          switch ($score) {
+              case 90:
+                  echo 'Excellent';
+                  break;
+              default:
+                  echo 'Good';
+          }
+          
+          // Foreach loop
+          $skills = ['PHP', 'JS', 'MySQL'];
+          foreach ($skills as $skill) {
+              echo "$skill ";
+          }
+          </code></pre>
+                      </div>
+          
+                      <!-- Concept 3: Functions -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">3. Functions</h5>
+                        <div class="explanation">
+                          <p>Functions encapsulate code; support parameters, return types, defaults. Arrow functions (PHP 7.4+) for closures.</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          function greet(string $name, int $age = 25): string {
+              return "Hello, $name! You are $age years old.";
+          }
+          
+          echo greet('Sujeet', 30);
+          
+          // Arrow function
+          $add = fn($a, $b) => $a + $b;
+          echo $add(5, 3);  // 8
+          
+          // Variable functions
+          $say = 'greet';
+          $say('World');  // Calls greet('World')
+          </code></pre>
+                      </div>
+          
+                      <!-- Concept 4: Arrays -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">4. Arrays</h5>
+                        <div class="explanation">
+                          <p>Arrays are dynamic; indexed/associative. Functions like array_map, array_filter for manipulation. PHP 8.1+ enums for typed arrays.</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          $fruits = ['apple', 'banana', 'cherry'];  // Indexed
+          $person = ['name' => 'Sujeet', 'age' => 30];  // Associative
+          
+          // Access
+          echo $fruits[1];  // banana
+          echo $person['name'];  // Sujeet
+          
+          // Functions
+          $upper = array_map('strtoupper', $fruits);
+          print_r($upper);  // ['APPLE', 'BANANA', 'CHERRY']
+          
+          // Filter
+          $evenAges = array_filter([1,2,3,4], fn($n) => $n % 2 === 0);
+          print_r($evenAges);  // [2 => 2, 4 => 4]
+          </code></pre>
+                      </div>
+          
+                      <!-- Concept 5: Object-Oriented Programming (OOP) -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">5. Object-Oriented Programming (OOP)</h5>
+                        <div class="explanation">
+                          <p>Classes define objects with properties/methods. Support inheritance, interfaces, traits, abstract classes. PHP 8+ attributes for metadata.</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          class Person {
+              public string $name;
+              protected int $age;
+              
+              public function __construct(string $name, int $age) {
+                  $this->name = $name;
+                  $this->age = $age;
+              }
+              
+              public function greet(): string {
+                  return "Hi, I'm {$this->name}";
+              }
+          }
+          
+          class Developer extends Person {
+              public function __construct(string $name, int $age) {
+                  parent::__construct($name, $age);
+              }
+              
+              public function code(): string {
+                  return $this->greet() . ' and I code in PHP!';
+              }
+          }
+          
+          $dev = new Developer('Sujeet', 30);
+          echo $dev->code();
+          
+          // Trait
+          trait Loggable {
+              public function log(string $msg): void {
+                  echo "Log: $msg";
+              }
+          }
+          </code></pre>
+                      </div>
+          
+                      <!-- Concept 6: Error Handling and Exceptions -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">6. Error Handling and Exceptions</h5>
+                        <div class="explanation">
+                          <p>Use try/catch for exceptions; set_error_handler for errors. PHP 8+ match for pattern matching in handling.</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          function divide(float $a, float $b): float {
+              if ($b === 0) {
+                  throw new InvalidArgumentException('Division by zero');
+              }
+              return $a / $b;
+          }
+          
+          try {
+              echo divide(10, 0);
+          } catch (InvalidArgumentException $e) {
+              echo "Error: " . $e->getMessage();
+          } finally {
+              echo " Cleanup done";
+          }
+          
+          // Match (PHP 8+)
+          $result = match($status) {
+              200 => 'OK',
+              404 => 'Not Found',
+              default => 'Error'
+          };
+          </code></pre>
+                      </div>
+          
+                      <!-- Concept 7: Database Interactions with PDO -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">7. Database Interactions with PDO</h5>
+                        <div class="explanation">
+                          <p>PDO for secure DB access; prepared statements prevent SQL injection. Supports multiple drivers (MySQL, PostgreSQL).</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          $dsn = 'mysql:host=localhost;dbname=test';
+          $pdo = new PDO($dsn, 'user', 'pass', [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+          
+          // Prepared query
+          $stmt = $pdo->prepare('SELECT * FROM users WHERE id = ?');
+          $stmt->execute([1]);
+          $user = $stmt->fetch(PDO::FETCH_ASSOC);
+          print_r($user);
+          
+          // Insert
+          $stmt = $pdo->prepare('INSERT INTO users (name) VALUES (?)');
+          $stmt->execute(['Sujeet']);
+          echo $pdo->lastInsertId();
+          </code></pre>
+                      </div>
+          
+                      <!-- Concept 8: Sessions and Cookies -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">8. Sessions and Cookies</h5>
+                        <div class="explanation">
+                          <p>Sessions store server-side data; cookies client-side. Use session_start(); setcookie() for HTTP-only security.</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          session_start();
+          $_SESSION['user'] = 'Sujeet';
+          
+          if (isset($_SESSION['user'])) {
+              echo "Welcome, {$_SESSION['user']}!";
+          }
+          
+          // Cookie
+          setcookie('theme', 'dark', time() + 3600, '/', '', true, true);  // HTTP-only, secure
+          
+          // Read cookie
+          if (isset($_COOKIE['theme'])) {
+              echo "Theme: {$_COOKIE['theme']}";
+          }
+          
+          // Destroy session
+          session_destroy();
+          </code></pre>
+                      </div>
+          
+                      <!-- Concept 9: Composer and Dependencies -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">9. Composer and Dependencies</h5>
+                        <div class="explanation">
+                          <p>Composer manages packages; autoload PSR-4 classes. composer.json for requirements; dump-autoload for updates.</p>
+                        </div>
+                        <pre class="code-example"><code>// composer.json
+          {
+              "require": {
+                  "monolog/monolog": "^3.0"
+              },
+              "autoload": {
+                  "psr-4": {
+                      "App\\": "src/"
+                  }
+              }
+          }
+          
+          // Install: composer install
+          
+          // Usage
+          require 'vendor/autoload.php';
+          use Monolog\Logger;
+          use Monolog\Handler\StreamHandler;
+          
+          $log = new Logger('name');
+          $log->pushHandler(new StreamHandler('app.log', Logger::WARNING));
+          $log->warning('Foo!');</code></pre>
+                      </div>
+          
+                      <!-- Concept 10: Modern PHP 8+ Features -->
+                      <div class="panel-v2 concept-section">
+                        <h5 class="mb-2">10. Modern PHP 8+ Features</h5>
+                        <div class="explanation">
+                          <p>PHP 8+ includes JIT, attributes, named arguments, union types. Enhances performance and expressiveness.</p>
+                        </div>
+                        <pre class="code-example"><code>&lt;?php
+          // Named arguments
+          function info(string $name, int $age = 0): void {
+              echo "$name is $age years old";
+          }
+          info(age: 30, name: 'Sujeet');  // Order independent
+          
+          // Union types
+          function process(mixed $data): string|bool {
+              return is_string($data) ? strtoupper($data) : false;
+          }
+          
+          // Attributes (PHP 8)
+          #[Attribute]
+          class Loggable {}
+          
+          #[Loggable]
+          class MyClass {
+              // ...
+          }
+          
+          // Readonly properties (PHP 8.1)
+          class Config {
+              public function __construct(public readonly string $host) {}
+          }</code></pre>
+                      </div>
+          
+                      <div class="alert alert-info mt-4">
+                        <p>This covers core PHP concepts. For frameworks like Laravel/Symfony, explore their docs. Follow PSR standards for clean, maintainable code. PHP 8.3+ recommended for production.</p>
+                      </div>
+        </div>
+      </div>
+    </main>
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+    <script>
+      // Inline script to update year (demo)
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

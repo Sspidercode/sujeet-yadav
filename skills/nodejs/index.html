@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - Node.js | Sujeet Yadav</title>
+    <meta name="description" content="Node.js skill details, intro and comprehensive concepts with examples" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+    <style>
+      .concept-section { margin-bottom: 2rem; }
+      .code-example { background: #0b0d12; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 12px; white-space: pre; overflow: auto; font-size: 0.875rem; }
+      .explanation { margin-bottom: 1rem; }
+    </style>
+  </head>
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+    <main class="section pt-6">
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">Node.js</h1>
+        <p class="text-muted-2 small mb-4">Server-side JavaScript runtime for building scalable network applications, REST APIs, and CLIs. Below is a comprehensive guide to key Node.js concepts with detailed explanations and examples. (Examples assume Node.js 22+; run with `node filename.js`.)</p>
+        
+        <div class="row g-4 align-items-start">
+          <div class="col-lg-4 text-center">
+            <img src="icon.svg" alt="Node.js icon" style="width:220px;height:220px;"/>
+          </div>
+          <div class="col-lg-8">
+            <!-- Basic Example -->
+            <div class="panel-v2 concept-section">
+              <h5 class="mb-2">Basic Example: Console Output</h5>
+              <div class="explanation">
+                <p>This simple script logs a message to the console, demonstrating Node.js as a runtime for executing JavaScript outside the browser.</p>
+              </div>
+              <pre class="code-example"><code>console.log('Hello Node.js');</code></pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+        <div class="row g-4 align-items-center">
+           <!-- Concept 1: Event Loop and Non-blocking I/O -->
+           <div class="panel-v2 concept-section">
+            <h5 class="mb-2">1. Event Loop and Non-blocking I/O</h5>
+            <div class="explanation">
+              <p>Node.js uses a single-threaded event loop for concurrency. Non-blocking I/O via callbacks/Promises allows handling many operations asynchronously without threads.</p>
+            </div>
+            <pre class="code-example"><code>// server.js
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+res.writeHead(200, { 'Content-Type': 'text/plain' });
+res.end('Hello from Node.js!');
+});
+
+server.listen(3000, () => {
+console.log('Server running at http://localhost:3000/');
+});
+
+// Event loop: Handles multiple requests concurrently
+// Run: node server.js</code></pre>
+          </div>
+
+          <!-- Concept 2: Modules (CommonJS and ES6) -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">2. Modules (CommonJS and ES6)</h5>
+            <div class="explanation">
+              <p>Node.js supports modular code with require() (CommonJS) or import/export (ES6). Use package.json for type: "module" to enable ES6.</p>
+            </div>
+            <pre class="code-example"><code>// math.js (CommonJS)
+function add(a, b) { return a + b; }
+module.exports = { add };
+
+// app.js
+const { add } = require('./math');
+console.log(add(2, 3));  // 5
+
+// ES6: In package.json: "type": "module"
+// math.mjs
+export function multiply(a, b) { return a * b; }
+
+// app.mjs
+import { multiply } from './math.mjs';
+console.log(multiply(4, 5));  // 20</code></pre>
+          </div>
+
+          <!-- Concept 3: NPM and Package Management -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">3. NPM and Package Management</h5>
+            <div class="explanation">
+              <p>NPM (Node Package Manager) handles dependencies. Init with npm init; install with npm i. Scripts in package.json for tasks like start/test.</p>
+            </div>
+            <pre class="code-example"><code>// package.json
+{
+"name": "sujeet-app",
+"version": "1.0.0",
+"scripts": {
+  "start": "node app.js",
+  "dev": "nodemon app.js",
+  "test": "jest"
+},
+"dependencies": {
+  "express": "^4.18.0"
+},
+"devDependencies": {
+  "nodemon": "^3.0.0",
+  "jest": "^29.0.0"
+}
+}
+
+// Install: npm install
+// Run: npm start</code></pre>
+          </div>
+
+          <!-- Concept 4: Building a Simple HTTP Server -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">4. Building a Simple HTTP Server</h5>
+            <div class="explanation">
+              <p>Use built-in http module for basic servers. Handle routes, headers, status codes. For production, use frameworks like Express.</p>
+            </div>
+            <pre class="code-example"><code>const http = require('http');
+const url = require('url');
+
+const server = http.createServer((req, res) => {
+const pathname = url.parse(req.url).pathname;
+
+if (pathname === '/') {
+  res.writeHead(200, { 'Content-Type': 'text/html' });
+  res.end('<h1>Welcome to Node.js Server</h1>');
+} else if (pathname === '/api/users') {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify([{ id: 1, name: 'Sujeet' }]));
+} else {
+  res.writeHead(404);
+  res.end('Not Found');
+}
+});
+
+server.listen(3000, 'localhost', () => {
+console.log('Server on port 3000');
+});</code></pre>
+          </div>
+
+          <!-- Concept 5: Express.js for REST APIs -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">5. Express.js for REST APIs</h5>
+            <div class="explanation">
+              <p>Express is a minimal web framework. Define routes, middleware; handle JSON, static files. Install via npm i express.</p>
+            </div>
+            <pre class="code-example"><code>const express = require('express');
+const app = express();
+app.use(express.json());
+
+app.get('/', (req, res) => {
+res.send('Hello Express!');
+});
+
+app.get('/users', (req, res) => {
+res.json([{ id: 1, name: 'Sujeet Yadav' }]);
+});
+
+app.post('/users', (req, res) => {
+const user = req.body;
+// Simulate save
+res.status(201).json({ id: 2, ...user });
+});
+
+app.listen(3000, () => {
+console.log('Express server on port 3000');
+});</code></pre>
+          </div>
+
+          <!-- Concept 6: Asynchronous Programming -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">6. Asynchronous Programming</h5>
+            <div class="explanation">
+              <p>Handle async with callbacks, Promises, or async/await. Use for I/O like fs.readFile or fetch.</p>
+            </div>
+            <pre class="code-example"><code>const fs = require('fs').promises;
+
+async function readFileAsync() {
+try {
+  const data = await fs.readFile('example.txt', 'utf8');
+  console.log(data);
+} catch (err) {
+  console.error('Error:', err.message);
+}
+}
+
+readFileAsync();
+
+// Promise chain
+fs.readFile('example.txt', 'utf8')
+.then(data => console.log(data))
+.catch(err => console.error(err.message));</code></pre>
+          </div>
+
+          <!-- Concept 7: File System Operations -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">7. File System Operations</h5>
+            <div class="explanation">
+              <p>fs module for reading/writing files synchronously or asynchronously. Use paths module for cross-platform paths.</p>
+            </div>
+            <pre class="code-example"><code>const fs = require('fs');
+const path = require('path');
+
+const filePath = path.join(__dirname, 'data.txt');
+
+// Write
+fs.writeFileSync(filePath, 'Hello Node.js File System!');
+
+// Read async
+fs.readFile(filePath, 'utf8', (err, data) => {
+if (err) throw err;
+console.log(data);
+});
+
+// Append
+fs.appendFile(filePath, '\nAppended line', (err) => {
+if (err) throw err;
+console.log('Appended');
+});
+
+// Check if exists
+if (fs.existsSync(filePath)) {
+console.log('File exists');
+}</code></pre>
+          </div>
+
+          <!-- Concept 8: Error Handling and Debugging -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">8. Error Handling and Debugging</h5>
+            <div class="explanation">
+              <p>Use try/catch for sync/async; process.on('uncaughtException'). Debug with console, debugger statement, or tools like Node Inspector.</p>
+            </div>
+            <pre class="code-example"><code>// Try/catch with async
+async function riskyOp() {
+try {
+  const data = await fs.readFile('nonexistent.txt', 'utf8');
+} catch (error) {
+  console.error('Handled error:', error.message);
+}
+}
+
+riskyOp();
+
+// Global unhandled
+process.on('uncaughtException', (err) => {
+console.error('Uncaught:', err);
+process.exit(1);
+});
+
+// Debug: node --inspect app.js
+// Then chrome://inspect</code></pre>
+          </div>
+
+          <!-- Concept 9: Testing with Jest -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">9. Testing with Jest</h5>
+            <div class="explanation">
+              <p>Jest for unit/integration tests. Mock modules; run with npm test. Supports async tests.</p>
+            </div>
+            <pre class="code-example"><code>// math.js
+function add(a, b) { return a + b; }
+module.exports = { add };
+
+// math.test.js
+const { add } = require('./math');
+
+test('adds 1 + 2 to equal 3', () => {
+expect(add(1, 2)).toBe(3);
+});
+
+// Async test
+test('reads file async', async () => {
+const data = await fs.readFile('test.txt', 'utf8');
+expect(data).toBe('expected');
+});
+
+// package.json: "test": "jest"
+</code></pre>
+          </div>
+
+          <!-- Concept 10: Deployment and Clustering -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">10. Deployment and Clustering</h5>
+            <div class="explanation">
+              <p>Use PM2 for process management/clustering. Docker for containerization. Environment vars via process.env.</p>
+            </div>
+            <pre class="code-example"><code>// Cluster module
+const cluster = require('cluster');
+const numCPUs = require('os').cpus().length;
+
+if (cluster.isMaster) {
+console.log(`Master ${process.pid} is running`);
+for (let i = 0; i < numCPUs; i++) {
+  cluster.fork();
+}
+} else {
+// Workers run server
+http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('Worker ' + process.pid);
+}).listen(8000);
+console.log(`Worker ${process.pid} started`);
+}
+
+// PM2: npm i -g pm2
+// pm2 start app.js -i max  // Cluster mode</code></pre>
+          </div>
+
+          <div class="alert alert-info mt-4">
+            <p>This covers core Node.js concepts. For advanced topics like TypeScript integration, WebSockets (Socket.io), or microservices, explore the official Node.js docs or NPM ecosystem.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+    <script>
+      // Inline script to update year (demo)
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

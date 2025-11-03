@@ -1,0 +1,1 @@
+button { background: linear-gradient(90deg, #ff1e56, #6d5ef9); }

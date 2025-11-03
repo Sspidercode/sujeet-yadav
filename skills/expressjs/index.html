@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - Express.js | Sujeet Yadav</title>
+    <meta name="description" content="Express.js skill details, intro and example" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+
+    <!-- Main Section -->
+    <main class="section pt-6">
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">Express.js</h1>
+        <p class="text-muted-2 small mb-4">
+          Express.js is a fast, unopinionated, and minimalist web framework for Node.js. It provides a robust set of features to build scalable web applications, RESTful APIs, and middleware-based server logic efficiently.
+        </p>
+
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-5 text-center">
+            <img src="icon.svg" alt="Express.js icon" style="width:220px;height:220px;"/>
+          </div>
+          <div class="col-lg-7">
+            <div class="panel-v2">
+              <h5 class="mb-2">Example</h5>
+              <pre class="small" style="background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:12px;white-space:pre;overflow:auto;">
+<code>const express = require('express');
+const app = express();
+
+// Middleware example
+app.use(express.json());
+
+// Route example
+app.get('/hello', (req, res) => res.send('Hello Express'));
+
+// Start server
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+</code>
+</pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-5 text-muted-2"/>
+
+        <div class="panel-v2">
+          <h4 class="mb-3">Core Features of Express.js</h4>
+          <ul class="text-muted-2 small">
+            <li><b>Routing:</b> Manage multiple URLs and HTTP methods (GET, POST, PUT, DELETE).</li>
+            <li><b>Middleware:</b> Use request/response pipelines for authentication, logging, or data parsing.</li>
+            <li><b>Templating Engines:</b> Support for Pug, EJS, Handlebars, etc.</li>
+            <li><b>Static Files:</b> Serve CSS, JS, and images easily using <code>express.static()</code>.</li>
+            <li><b>Error Handling:</b> Centralized error and exception management.</li>
+            <li><b>Integration:</b> Works seamlessly with databases like MongoDB, MySQL, and PostgreSQL.</li>
+          </ul>
+        </div>
+
+        <div class="panel-v2 mt-4">
+          <h4 class="mb-3">Why Express.js is Important</h4>
+          <p class="text-muted-2 small">
+            Express.js simplifies backend development by providing powerful routing and middleware patterns. 
+            It allows developers to quickly build APIs, manage HTTP requests, and handle user authentication — all in a lightweight structure. 
+            It’s the backbone for many Node-based frameworks like NestJS and Sails.js.
+          </p>
+        </div>
+
+        <div class="panel-v2 mt-4">
+          <h4 class="mb-3">Common Use Cases</h4>
+          <ul class="text-muted-2 small">
+            <li>Building RESTful and GraphQL APIs</li>
+            <li>Microservice-based architecture</li>
+            <li>Authentication and authorization systems (JWT, OAuth)</li>
+            <li>File upload and media handling (using Multer)</li>
+            <li>Integrating with databases (MongoDB, MySQL, PostgreSQL)</li>
+            <li>Real-time communication with Socket.io</li>
+          </ul>
+        </div>
+
+        <div class="panel-v2 mt-4">
+          <h4 class="mb-3">Advanced Concepts</h4>
+          <ul class="text-muted-2 small">
+            <li>Custom Middleware Development</li>
+            <li>Async Error Handling using try/catch and error middleware</li>
+            <li>Environment-based configuration (dotenv)</li>
+            <li>Request validation using Joi or express-validator</li>
+            <li>Security best practices (Helmet, CORS, Rate Limiting)</li>
+            <li>Performance optimization and clustering</li>
+          </ul>
+        </div>
+
+        <div class="panel-v2 mt-4">
+          <h4 class="mb-3">Learning Path for Express.js</h4>
+          <ol class="text-muted-2 small">
+            <li>Understand Node.js fundamentals</li>
+            <li>Setup Express and basic routes</li>
+            <li>Learn middleware and request handling</li>
+            <li>Integrate database (MongoDB or MySQL)</li>
+            <li>Implement authentication (JWT/OAuth)</li>
+            <li>Handle errors and security practices</li>
+            <li>Deploy your Express app on cloud (AWS, Render, or Vercel)</li>
+          </ol>
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+  </body>
+</html>

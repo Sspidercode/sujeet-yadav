@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio - Ayesha</title>
+    <meta name="description" content="Modern portfolio website using Bootstrap, HTML, CSS and JavaScript" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- App CSS -->
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+  </head>
+  <body class="theme-dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm blur-nav nav-v2">
+      <div class="container">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="#home">SUJEET YADAV</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-4">
+            <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
+            <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero V2 -->
+    <header id="home" class="section hero-v2">
+      <div class="container">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-7">
+            <p class="eyebrow-v2 mb-2">Hi! My name is</p>
+            <h1 class="display-5 fw-bold title-v2 mb-1">SUJEET YADAV</h1>
+            <h2 class="subtitle-v2 mb-4">Software Developer</h2>
+            <p class="text-muted-2 small mb-4" style="max-width: 560px;">Highly motivated and professional developer with over more than 3 years of experience in the development of cutting‑edge web and mobile applications.</p>
+            <a id="downloadCvBtn" href="./assets/image/Sujeetyadav.pdf" target="_blank" class="btn btn-primary-v2 btn-sm">Download CV</a>
+          </div>
+          <div class="col-lg-5 text-center">
+            <div class="avatar-stage">
+              <span class="gear gear-a"></span>
+              <span class="gear gear-b"></span>
+              <div class="avatar-wrapper">
+                <span class="avatar-ring"></span>
+                <img class="hero-v2-img avatar-img" alt="Avatar" src="./assets/image/sky.jpg" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- About / Pro Skills V2 -->
+    <section id="about" class="section about-v2">
+      <div class="container">
+        <div class="row g-4 align-items-start">
+          <div class="col-lg-8">
+            <div class="about-box-v2">
+              <p class="mb-0 small">Results-driven Backend Developer with over 5 years of
+                experience specializing in PHP (Laravel, CodeIgniter), Node.js
+                (Express.js), and MySQL. Proficient in designing secure, scalable
+                APIs, implementing multi-role authentication, and integrating
+                third-party services. Adept at upgrading legacy systems and
+                deploying solutions on AWS. Collaborative team player with a
+                proven track record of delivering high-performance backend
+                solutions for web and mobile platforms.</p>
+              <a href="#contact" class="btn btn-outline-v2 btn-sm mt-3">More About Me</a>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="pro-skills-v2">
+              <div class="label">PRO <span>SKILLS</span></div>
+              <div class="d-grid gap-3 mt-3">
+                <div class="ring" data-value="85">WEB 85%</div>
+                <div class="ring" data-value="60">API Integration 60%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience -->
+    <section id="experience" class="section exp-v2">
+      <div class="container">
+        <h2 class="section-heading-v2 text-center">MY <span>EXPERIENCE</span></h2>
+        <div class="panel-v2 timeline-v2 mt-3">
+          <div class="tl-item-v2">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <h5 class="tl-title">CLAVIS TECHNOLOGIES, NOIDA <span class="tl-period">AUG 2024 - NOW</span></h5>
+              <div class="tl-role">Software Developer</div>
+              <p class="small text-muted-2 mb-0">Spearheaded backend development and legacy system modernization using CodeIgniter and Laravel. Led the successful migration of ZyraTalk from CodeIgniter 3 to 4, enhancing performance and maintainability.</p>
+            </div>
+          </div>
+          <div class="tl-item-v2">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <h5 class="tl-title">HASHTAG LABS, LUCKNOW <span class="tl-period">JUN 2023 - AUG 2024</span></h5>
+              <div class="tl-role">Software Developer</div>
+              <p class="small text-muted-2 mb-0">Engineered scalable RESTful APIs using Laravel and Node.js (Express.js), supporting seamless multi-role functionality. Developed intuitive backend dashboards, improving user experience for administrators and end-users.</p>
+            </div>
+          </div>
+          <div class="tl-item-v2">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <h5 class="tl-title">OBSERVANCE SOLUTIONS PVT. LTD <span class="tl-period">APR 2022 - MAY 2023</span></h5>
+              <div class="tl-role">Software Developer</div>
+              <p class="small text-muted-2 mb-0">Optimized API performance, achieving a 20% increase in system efficiency and 15% reduction in downtime. Enhanced web strategies to support business‑critical applications, ensuring robust backend operations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Education -->
+    <section id="education" class="section edu-v2">
+      <div class="container">
+        <h2 class="section-heading-v2 text-center">MY <span>EDUCATION</span></h2>
+        <div class="panel-v2 edu-card-v2 mt-3">
+          <div class="edu-item-v2">
+            <div class="edu-main">
+              <div class="edu-title">JAWAHAR LAL NEHRU POLYTECHNIC</div>
+              <div class="edu-degree">Diploma in Computer Science</div>
+            </div>
+            <div class="edu-year">2016 - 2019</div>
+          </div>
+          <div class="edu-item-v2">
+            <div class="edu-main">
+              <div class="edu-title">GOVT INTER COLLAGE</div>
+              <div class="edu-degree">12th</div>
+            </div>
+            <div class="edu-year">2015 - 2016</div>
+          </div>
+          <div class="edu-item-v2">
+            <div class="edu-main">
+              <div class="edu-title">ALMIGHTY MONTESSORI INTER COLLEGE</div>
+              <div class="edu-degree">10th</div>
+            </div>
+            <div class="edu-year">2013 - 2014</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Band V2 -->
+    <section class="section stats-v2 py-5">
+      <div class="container">
+        <div class="row row-cols-1 row-cols-md-3 g-0 justify-content-center text-center">
+          <div class="col"><div class="stat-item"><div class="num">12+</div><div class="cap">Happy Clients</div></div></div>
+          <div class="col"><div class="stat-item"><div class="num">15+</div><div class="cap">Projects Completed</div></div></div>
+          <div class="col"><div class="stat-item"><div class="num">5+</div><div class="cap">Experience</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills V2 -->
+    <section id="skills" class="section skills-v2">
+      <div class="container">
+        <h2 class="section-heading-v2 text-center">MY <span>SKILLS</span></h2>
+        <p class="text-center text-muted-2 small mb-4">Specialized across backend, frontend, databases, DevOps, and integrations.</p>
+        <div class="skills-card-v2">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <h5 class="mb-2 subcap">BACKEND DEVELOPMENT</h5>
+              <ul class="skill-list-v2">
+                <li class="tag-v2">PHP</li>
+                <li class="tag-v2">Laravel</li>
+                <li class="tag-v2">CodeIgniter 3/4</li>
+                <li class="tag-v2">Node.js</li>
+                <li class="tag-v2">Express.js</li>
+                <li class="tag-v2">Core PHP</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="mb-2 subcap">FRONTEND SKILLS</h5>
+              <ul class="skill-list-v2">
+                <li class="tag-v2">HTML</li>
+                <li class="tag-v2">CSS</li>
+                <li class="tag-v2">JavaScript</li>
+                <li class="tag-v2">jQuery</li>
+                <li class="tag-v2">Bootstrap</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="mb-2 subcap">DATABASES</h5>
+              <ul class="skill-list-v2">
+                <li class="tag-v2">MySQL</li>
+                <li class="tag-v2">MongoDB</li>
+                <li class="tag-v2">PostgreSQL</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="mb-2 subcap">DEVOPS & TOOLS</h5>
+              <ul class="skill-list-v2">
+                <li class="tag-v2">AWS</li>
+                <li class="tag-v2">GitHub</li>
+                <li class="tag-v2">Bitbucket</li>
+                <li class="tag-v2">RESTful APIs</li>
+                <li class="tag-v2">CI/CD pipelines</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="mb-2 subcap">INTEGRATIONS</h5>
+              <ul class="skill-list-v2">
+                <li class="tag-v2">Payment Gateways</li>
+                <li class="tag-v2">Third-Party APIs</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5 class="mb-2 subcap">KEY STRENGTHS</h5>
+              <ul class="skill-list-v2">
+                <li class="tag-v2">Role-Based Authentication</li>
+                <li class="tag-v2">MVC Architecture</li>
+                <li class="tag-v2">Legacy System Upgrades</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Portfolio Grid -->
+    <section id="portfolio" class="section">
+      <div class="container">
+        <h2 class="section-heading-v2 text-center">MY <span>PORTFOLIO</span></h2>
+        <div class="row g-4 mt-1">
+          <div class="col-sm-6 col-md-4">
+            <a class="project-card" href="#" target="_blank">
+              <img alt="ZyraTalk" src="https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=900&auto=format&fit=crop" />
+              <div class="project-overlay"><div><div class="proj-name">ZyraTalk</div><div class="proj-meta">CI3/4, PHP, MySQL</div></div></div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <a class="project-card" href="#" target="_blank">
+              <img alt="DRL Lab" src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=900&auto=format&fit=crop" />
+              <div class="project-overlay"><div><div class="proj-name">DRL Lab</div><div class="proj-meta">Node, Lumen, AWS</div></div></div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <a class="project-card" href="#" target="_blank">
+              <img alt="MDVTI Portal" src="https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=900&auto=format&fit=crop" />
+              <div class="project-overlay"><div><div class="proj-name">MDVTI Portal</div><div class="proj-meta">Laravel, MySQL</div></div></div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <a class="project-card" href="#" target="_blank">
+              <img alt="Digital Shahakar" src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=900&auto=format&fit=crop" />
+              <div class="project-overlay"><div><div class="proj-name">Digital Shahakar</div><div class="proj-meta">Express, MySQL</div></div></div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <a class="project-card" href="#" target="_blank">
+              <img alt="Pakka" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=900&auto=format&fit=crop" />
+              <div class="project-overlay"><div><div class="proj-name">Pakka</div><div class="proj-meta">CI4, PHP, MySQL</div></div></div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <a class="project-card" href="#" target="_blank">
+              <img alt="Youth Sports Messenger" src="https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=900&auto=format&fit=crop" />
+              <div class="project-overlay"><div><div class="proj-name">Youth Sports Messenger (YSM)</div><div class="proj-meta">Laravel, MySQL</div></div></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact V2 -->
+    <section id="contact" class="section contact-v2">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <p class="eyebrow-v2">Contact</p>
+            <h3 class="title-v2 mb-3">GET IN TOUCH</h3>
+            <p class="text-muted-2 small mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis.</p>
+            <div class="row g-3">
+              <div class="col-md-4"><div class="info-card-v2"><i class="fa-solid fa-location-dot"></i><div>Noida<br/>India</div></div></div>
+              <div class="col-md-4"><div class="info-card-v2"><i class="fa-solid fa-phone"></i><div>+91 <br/>7275537561</div></div></div>
+              <div class="col-md-4"><div class="info-card-v2"><i class="fa-solid fa-envelope"></i><div>yadavsujeet391<br/>@gmail.com</div></div></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="contact-form-v2">
+              <form novalidate>
+                <div class="row g-3">
+                  <div class="col-12 col-md-6"><input type="text" class="form-control" placeholder="Your Name" /></div>
+                  <div class="col-12 col-md-6"><input type="email" class="form-control" placeholder="example@mail.com" /></div>
+                  <div class="col-12"><input type="text" class="form-control" placeholder="Your Contact Number" /></div>
+                  <div class="col-12"><textarea rows="5" class="form-control" placeholder="Your Message Here"></textarea></div>
+                  <div class="col-12 text-end"><button class="btn btn-primary-v2 btn-sm">Send Message</button></div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Ayesha — All rights reserved.</div>
+    </footer>
+
+    <!-- 70% Scroll Modal -->
+    <div class="modal fade" id="funnyScrollModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-dark-v2">
+          <div class="modal-header border-0">
+            <h5 class="modal-title">Quick Hello 👋</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body pt-0">
+            <p class="small text-muted-2 mb-3">Arre wah! Aap 70% scroll kar chuke ho 😄<br/>Lagta hai aap interested ho — chaliye connect karte hain!</p>
+            <form id="contactModalForm" novalidate>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <input type="text" class="form-control" name="name" placeholder="Your Name" required />
+                </div>
+                <div class="col-12 col-md-6">
+                  <input type="email" class="form-control" name="email" placeholder="example@mail.com" required />
+                </div>
+                <div class="col-12">
+                  <textarea class="form-control" name="message" rows="4" placeholder="Your Message"></textarea>
+                </div>
+                <div class="col-12 d-flex justify-content-between align-items-center">
+                  <a id="downloadCvBtnModal" href="./assets/image/Sujeetyadav.pdf" target="_blank" class="btn btn-outline-v2 btn-sm">Download CV</a>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-v2 btn-sm" data-bs-dismiss="modal">Not Now</button>
+                    <button type="submit" class="btn btn-primary-v2 btn-sm">Send Message</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- App JS -->
+    <script src="assets/js/script.js"></script>
+  </body>
+  </html>
+
+

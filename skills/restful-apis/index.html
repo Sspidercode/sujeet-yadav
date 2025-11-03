@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Skill - RESTful APIs | Sujeet Yadav</title>
+  <meta name="description" content="RESTful APIs skill details, intro and comprehensive concepts with examples" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../../assets/css/style.css" rel="stylesheet" />
+  <style>
+    .concept-section {
+      margin-bottom: 2rem;
+    }
+
+    .code-example {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 12px;
+      white-space: pre;
+      overflow: auto;
+      font-size: 0.875rem;
+    }
+
+    .explanation {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body class="theme-dark">
+  <canvas id="smokeCanvas"></canvas>
+  <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+    <div class="container py-2">
+      <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+      <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+    </div>
+  </nav>
+  <main class="section pt-6">
+    <div class="container">
+      <p class="eyebrow-v2">Skill</p>
+      <h1 class="title-v2 mb-2">RESTful APIs</h1>
+      <p class="text-muted-2 small mb-4">Designing versioned APIs, authentication, validation, pagination, and error
+        handling. Below is a comprehensive guide to key RESTful API concepts with detailed explanations and examples.
+        (Examples use Node.js/Express; adaptable to Laravel or other frameworks.)</p>
+
+      <div class="row g-4 align-items-start">
+        <div class="col-lg-4 text-center">
+          <img src="icon.svg" alt="REST icon" style="width:220px;height:220px;" />
+        </div>
+        <div class="col-lg-8">
+          <!-- Basic Example -->
+          <div class="panel-v2 concept-section">
+            <h5 class="mb-2">Basic Example: Paginated Resource</h5>
+            <div class="explanation">
+              <p>This GET request fetches users with pagination parameters, a common REST pattern for handling large
+                datasets.</p>
+            </div>
+            <pre class="code-example"><code>GET /api/v1/users?page=1&limit=10</code></pre>
+            <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+          </div>
+        </div>
+      </div>
+      <div class="row g-4 align-items-center">
+        <!-- Concept 1: REST Principles -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">1. REST Principles</h5>
+          <div class="explanation">
+            <p>REST (Representational State Transfer) is stateless, client-server architecture using HTTP. Resources as
+              nouns; uniform interface with methods (GET, POST, PUT, DELETE). Idempotency for safe operations.</p>
+          </div>
+          <pre class="code-example"><code>// REST constraints
+          // Stateless: No session state on server
+          // Cacheable: Use ETags/Cache-Control headers
+          // Layered: Proxies/CDNs transparent
+          // Code on demand: Optional (JS in responses)
+          
+          // Example response headers
+          // GET /users/1
+          // Content-Type: application/json
+          // ETag: "abc123"
+          </code></pre>
+        </div>
+
+        <!-- Concept 2: HTTP Methods -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">2. HTTP Methods</h5>
+          <div class="explanation">
+            <p>GET (read, safe/idempotent), POST (create), PUT/PATCH (update, idempotent), DELETE (remove, idempotent).
+              Use correct status codes (200 OK, 201 Created, 204 No Content).</p>
+          </div>
+          <pre class="code-example"><code>// Express routes
+          app.get('/users/:id', (req, res) => {  // GET: Read
+            res.json({ id: req.params.id, name: 'Sujeet' });
+          });
+          
+          app.post('/users', (req, res) => {  // POST: Create
+            const user = req.body;
+            // Save to DB
+            res.status(201).json({ id: 1, ...user });
+          });
+          
+          app.put('/users/:id', (req, res) => {  // PUT: Update full
+            // Replace resource
+            res.json({ id: req.params.id, ...req.body });
+          });
+          
+          app.patch('/users/:id', (req, res) => {  // PATCH: Partial update
+            // Update fields
+            res.json({ id: req.params.id, updated: true });
+          });
+          
+          app.delete('/users/:id', (req, res) => {  // DELETE
+            // Remove
+            res.status(204).send();
+          });</code></pre>
+        </div>
+
+        <!-- Concept 3: Resource Naming -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">3. Resource Naming</h5>
+          <div class="explanation">
+            <p>Use nouns for resources (/users, /users/{id}); hierarchical (/users/{id}/posts). Hyphens, plural,
+              lowercase. Avoid verbs in paths; use methods instead.</p>
+          </div>
+          <pre class="code-example"><code>// Good
+          GET /api/v1/users
+          GET /api/v1/users/123
+          POST /api/v1/users
+          GET /api/v1/users/123/posts
+          DELETE /api/v1/orders/456/items/789
+          
+          // Bad
+          GET /api/v1/getUsers
+          POST /api/v1/createUser
+          DELETE /api/v1/deleteUserById/123
+          
+          // Nested resources
+          app.get('/api/v1/users/:userId/posts/:postId', (req, res) => {
+            // Fetch specific post for user
+          });
+          </code></pre>
+        </div>
+
+        <!-- Concept 4: API Versioning -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">4. API Versioning</h5>
+          <div class="explanation">
+            <p>Version to evolve without breaking clients: URL (/v1/users), headers (Accept:
+              application/vnd.myapi.v1+json), query (?version=1). Semantic versioning (major.minor.patch).</p>
+          </div>
+          <pre class="code-example"><code>// URL versioning (Express)
+          app.use('/api/v1', userRouterV1);
+          app.use('/api/v2', userRouterV2);
+          
+          // Header versioning middleware
+          function versionMiddleware(req, res, next) {
+            const accept = req.get('Accept');
+            if (accept && accept.includes('v2')) {
+              req.version = 'v2';
+            } else {
+              req.version = 'v1';
+            }
+            next();
+          }
+          app.use(versionMiddleware);
+          
+          // Response
+          res.set('X-API-Version', '1.0.0');
+          </code></pre>
+        </div>
+
+        <!-- Concept 5: Authentication and Authorization -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">5. Authentication and Authorization</h5>
+          <div class="explanation">
+            <p>Use JWT, API keys, OAuth2. Bearer tokens in Authorization header. Middleware for validation; roles/scopes
+              for authz.</p>
+          </div>
+          <pre class="code-example"><code>// JWT middleware (jsonwebtoken)
+          const jwt = require('jsonwebtoken');
+          
+          function authMiddleware(req, res, next) {
+            const token = req.header('Authorization')?.replace('Bearer ', '');
+            if (!token) return res.status(401).json({ error: 'No token' });
+            
+            try {
+              const decoded = jwt.verify(token, 'secret_key');
+              req.user = decoded;  // { id: 123, role: 'admin' }
+              next();
+            } catch (err) {
+              res.status(401).json({ error: 'Invalid token' });
+            }
+          }
+          
+          app.get('/api/v1/users', authMiddleware, (req, res) => {
+            if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+            // Proceed
+          });</code></pre>
+        </div>
+
+        <!-- Concept 6: Request Validation -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">6. Request Validation</h5>
+          <div class="explanation">
+            <p>Validate inputs with schemas (Joi, express-validator). Return 400 Bad Request on failure; detailed
+              errors.</p>
+          </div>
+          <pre class="code-example"><code>// Joi validation
+          const Joi = require('joi');
+          
+          const userSchema = Joi.object({
+            name: Joi.string().min(2).required(),
+            email: Joi.string().email().required(),
+            age: Joi.number().integer().min(18)
+          });
+          
+          app.post('/api/v1/users', (req, res) => {
+            const { error, value } = userSchema.validate(req.body);
+            if (error) {
+              return res.status(400).json({ error: error.details[0].message });
+            }
+            // Proceed with value
+            res.json({ message: 'Valid', data: value });
+          });</code></pre>
+        </div>
+
+        <!-- Concept 7: Pagination and Filtering -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">7. Pagination and Filtering</h5>
+          <div class="explanation">
+            <p>Offset/limit or cursor-based pagination. Query params for filters (?status=active&sort=created_at).
+              Include metadata (total, pages).</p>
+          </div>
+          <pre class="code-example"><code>// Pagination middleware
+          function paginate(req, res, next) {
+            req.page = parseInt(req.query.page) || 1;
+            req.limit = parseInt(req.query.limit) || 10;
+            req.skip = (req.page - 1) * req.limit;
+            next();
+          }
+          
+          app.get('/api/v1/users', paginate, async (req, res) => {
+            const filter = req.query.filter ? { status: req.query.filter } : {};
+            const users = await User.find(filter).skip(req.skip).limit(req.limit).sort(req.query.sort || 'created_at');
+            const total = await User.countDocuments(filter);
+            
+            res.json({
+              data: users,
+              pagination: {
+                page: req.page,
+                limit: req.limit,
+                total,
+                pages: Math.ceil(total / req.limit)
+              }
+            });
+          });</code></pre>
+        </div>
+
+        <!-- Concept 8: Error Handling -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">8. Error Handling</h5>
+          <div class="explanation">
+            <p>Global handler for consistent responses: 4xx client errors, 5xx server. Include codes, messages; log
+              internals.</p>
+          </div>
+          <pre class="code-example"><code>// Global error handler (Express)
+          app.use((err, req, res, next) => {
+            console.error(err.stack);
+            res.status(err.status || 500).json({
+              error: {
+                code: err.code || 'INTERNAL_ERROR',
+                message: err.message || 'Something went wrong',
+                ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+              }
+            });
+          });
+          
+          // Usage
+          app.get('/api/v1/users/:id', async (req, res, next) => {
+            try {
+              const user = await User.findById(req.params.id);
+              if (!user) {
+                const error = new Error('User not found');
+                error.status = 404;
+                error.code = 'NOT_FOUND';
+                return next(error);
+              }
+              res.json(user);
+            } catch (err) {
+              next(err);
+            }
+          });</code></pre>
+        </div>
+
+        <!-- Concept 9: Rate Limiting -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">9. Rate Limiting</h5>
+          <div class="explanation">
+            <p>Prevent abuse with limits (e.g., 100/min per IP). Use express-rate-limit; headers for remaining requests.
+            </p>
+          </div>
+          <pre class="code-example"><code>// express-rate-limit
+          const rateLimit = require('express-rate-limit');
+          
+          const limiter = rateLimit({
+            windowMs: 15 * 60 * 1000,  // 15 min
+            max: 100,  // 100 requests
+            message: { error: { code: 'TOO_MANY_REQUESTS', message: 'Too many requests' } },
+            standardHeaders: true,  // X-RateLimit-Limit, etc.
+            legacyHeaders: false
+          });
+          
+          app.use('/api/v1/', limiter);
+          
+          app.get('/api/v1/users', (req, res) => {
+            res.json({ message: 'Rate limited endpoint' });
+          });</code></pre>
+        </div>
+
+        <!-- Concept 10: Documentation with OpenAPI -->
+        <div class="panel-v2 concept-section">
+          <h5 class="mb-2">10. Documentation with OpenAPI</h5>
+          <div class="explanation">
+            <p>OpenAPI (Swagger) specs for self-documenting APIs. Tools like swagger-jsdoc generate from code comments.
+            </p>
+          </div>
+          <pre class="code-example"><code>// swagger-jsdoc + swagger-ui-express
+          const swaggerJsdoc = require('swagger-jsdoc');
+          const swaggerUi = require('swagger-ui-express');
+          
+          const options = {
+            definition: {
+              openapi: '3.0.0',
+              info: { title: 'Sujeet API', version: '1.0.0' }
+            },
+            apis: ['./routes/*.js']
+          };
+          
+          const specs = swaggerJsdoc(options);
+          app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+          
+          // In route file
+          /**
+           * @swagger
+           * /api/v1/users:
+           *   get:
+           *     summary: Get users
+           *     parameters:
+           *       - in: query
+           *         name: page
+           *         schema: { type: integer }
+           *     responses:
+           *       200:
+           *         description: Success
+           *         content:
+           *           application/json:
+           *             schema:
+           *               type: object
+           *               properties:
+           *                 data:
+           *                   type: array
+           */
+          app.get('/api/v1/users', ...);</code></pre>
+        </div>
+
+        <div class="alert alert-info mt-4">
+          <p>This covers core RESTful API concepts. For HATEOAS or GraphQL alternatives, explore further. Follow RFC
+            7231 for HTTP semantics and test with Postman/Insomnia.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="py-4 small text-center text-muted-2">
+    <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/js/script.js"></script>
+  <script src="../../assets/js/smoke.js"></script>
+  <script>
+    // Inline script to update year (demo)
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>

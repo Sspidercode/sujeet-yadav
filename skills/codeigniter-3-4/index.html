@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - CodeIgniter 3/4 | Sujeet Yadav</title>
+    <meta name="description" content="CodeIgniter 3 and 4 skill details, migration, MVC structure, and best practices" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+  </head>
+
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+
+    <main class="section pt-6">
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">CodeIgniter 3 / 4</h1>
+        <p class="text-muted-2 small mb-4">
+          CodeIgniter (CI) is a powerful PHP framework with a small footprint. CI3 is known for simplicity and speed, while CI4 introduces modern PHP features, namespaces, improved routing, and enhanced security.
+        </p>
+
+        <div class="row g-4 align-items-center mb-5">
+          <div class="col-lg-5 text-center">
+            <img src="icon.svg" alt="CodeIgniter icon" style="width:220px;height:220px;"/>
+          </div>
+          <div class="col-lg-7">
+            <div class="panel-v2">
+              <h5 class="mb-2">Example (CI4 Routing)</h5>
+              <pre class="small" style="background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:12px;white-space:pre;overflow:auto;"><code>// app/Config/Routes.php
+$routes->get('/', 'Home::index');
+$routes->get('users', 'UserController::index');
+$routes->post('users/save', 'UserController::save');
+</code></pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-v2 mb-4">
+          <h5 class="mb-2">🧩 Key Features in CI3</h5>
+          <ul class="text-muted-2 small mb-0">
+            <li>Lightweight and fast performance.</li>
+            <li>MVC architecture with clear separation of concerns.</li>
+            <li>Simple routing and configuration system.</li>
+            <li>Built-in helpers and libraries.</li>
+            <li>Easy integration with MySQL and form validation.</li>
+          </ul>
+        </div>
+
+        <div class="panel-v2 mb-4">
+          <h5 class="mb-2">⚙️ CI4 Enhancements</h5>
+          <ul class="text-muted-2 small mb-0">
+            <li>Fully compatible with PHP 8+ using modern syntax.</li>
+            <li>Support for namespaces and autoloading (Composer-based).</li>
+            <li>Better security with CSRF, CSP, and improved session handling.</li>
+            <li>CLI support for migrations, seeds, and tasks.</li>
+            <li>More powerful routing and service container (Dependency Injection).</li>
+          </ul>
+        </div>
+
+        <div class="panel-v2 mb-4">
+          <h5 class="mb-2">🚀 CI3 → CI4 Migration Steps</h5>
+          <ol class="text-muted-2 small mb-0">
+            <li>Set up a fresh CodeIgniter 4 project using Composer.</li>
+            <li>Move CI3 controllers, models, and views into the new structure.</li>
+            <li>Update namespaces for all PHP files.</li>
+            <li>Refactor database queries using CI4’s Query Builder or Model class.</li>
+            <li>Replace `$this->load->view()` with `return view()` syntax.</li>
+            <li>Configure environment using `.env` and `/app/Config/` files.</li>
+          </ol>
+        </div>
+
+        <div class="panel-v2">
+          <h5 class="mb-2">💡 Best Practices</h5>
+          <ul class="text-muted-2 small mb-0">
+            <li>Use environment-based configuration for production/staging.</li>
+            <li>Keep controllers lean; use services and models for logic.</li>
+            <li>Enable error logging and caching for performance.</li>
+            <li>Use migration and seeders for consistent database setup.</li>
+            <li>Secure uploads, CSRF, and user input validation.</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+  </body>
+</html>

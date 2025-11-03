@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skill - Bitbucket | Sujeet Yadav</title>
+    <meta name="description" content="Bitbucket skill details, intro, features, and CI/CD examples by Sujeet Yadav" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css" rel="stylesheet" />
+  </head>
+  <body class="theme-dark">
+    <canvas id="smokeCanvas"></canvas>
+    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+      <div class="container py-2">
+        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../../index.html#skills">SUJEET YADAV</a>
+        <a class="btn btn-outline-v2 btn-sm" href="../../index.html#skills">Back to Skills</a>
+      </div>
+    </nav>
+
+    <main class="section pt-6">
+      <div class="container">
+        <p class="eyebrow-v2">Skill</p>
+        <h1 class="title-v2 mb-2">Bitbucket</h1>
+        <p class="text-muted-2 small mb-4">
+          Bitbucket ek Git-based source code management (SCM) tool hai jise Atlassian ne develop kiya hai.
+          Ye developers ko secure aur collaborative environment me code versioning, branching, aur continuous deployment ke liye help karta hai.
+        </p>
+
+        <div class="row g-4 align-items-center mb-5">
+          <div class="col-lg-5 text-center">
+            <img src="icon.svg" alt="Bitbucket icon" style="width:220px;height:220px;"/>
+          </div>
+          <div class="col-lg-7">
+            <div class="panel-v2">
+              <h5 class="mb-2">Example Commands</h5>
+              <pre class="small" style="background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:12px;white-space:pre;overflow:auto;">
+<code># Clone a Bitbucket repository
+git clone https://bitbucket.org/team/repo.git
+
+# Create and switch to a new branch
+git checkout -b feature/new-ui
+
+# Commit and push changes
+git add .
+git commit -m "Added new UI components"
+git push origin feature/new-ui
+
+# Merge changes through Pull Request (from UI)
+</code></pre>
+              <a href="example.txt" class="btn btn-outline-v2 btn-sm mt-2" target="_blank">Open example.txt</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-v2 mb-5">
+          <h4 class="mb-3">Core Features of Bitbucket</h4>
+          <ul class="list-unstyled small text-muted-2">
+            <li><strong>Private Repositories:</strong> Secure Git hosting for private teams and organizations.</li>
+            <li><strong>Branching & Merging:</strong> Simplifies collaborative development using feature branches.</li>
+            <li><strong>Pull Requests:</strong> Review and merge code changes with inline comments and approvals.</li>
+            <li><strong>Bitbucket Pipelines:</strong> Integrated CI/CD solution for automated build, test, and deploy workflows.</li>
+            <li><strong>Jira Integration:</strong> Directly connect code commits, branches, and pull requests with Jira issues.</li>
+            <li><strong>Access Control:</strong> Fine-grained permissions for teams, users, and repositories.</li>
+            <li><strong>Webhooks & API:</strong> Trigger external systems or automate tasks when events occur in a repo.</li>
+          </ul>
+        </div>
+
+        <div class="panel-v2 mb-5">
+          <h4 class="mb-3">Bitbucket Pipeline Example</h4>
+          <pre class="small" style="background:#0b0d12;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:12px;white-space:pre;overflow:auto;">
+<code>image: php:8.1
+
+pipelines:
+  default:
+    - step:
+        name: "Deploy Laravel App"
+        script:
+          - apt-get update && apt-get install -y unzip git
+          - composer install --no-interaction --prefer-dist
+          - php artisan migrate --force
+          - echo "Deployment Successful!"
+</code></pre>
+          <p class="small text-muted-2 mt-3">
+            Yeh example Bitbucket Pipeline ka basic CI/CD setup dikhata hai jisme Laravel app ko automatic deploy karne ke liye composer aur artisan commands chalaye gaye hain.
+          </p>
+        </div>
+
+        <div class="panel-v2">
+          <h4 class="mb-3">Why Bitbucket?</h4>
+          <ul class="small text-muted-2">
+            <li>Seamless integration with Jira and Confluence (Atlassian ecosystem).</li>
+            <li>In-built Pipelines for automated testing and deployment.</li>
+            <li>Strong access controls with team and project-level permissions.</li>
+            <li>Supports Git and Mercurial (legacy).</li>
+            <li>Perfect for collaborative development and version tracking.</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <footer class="py-4 small text-center text-muted-2">
+      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/script.js"></script>
+    <script src="../../assets/js/smoke.js"></script>
+  </body>
+</html>
