@@ -417,3 +417,41 @@ main .container img[src$="icon.svg"] {
   animation: spin 22s linear infinite;
 }
 
+/* =========================
+   Global ZOOP AI floating button
+   ========================= */
+.zoop-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: linear-gradient(135deg, var(--v2-primary), var(--v2-primary-2));
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 28px rgba(255,30,86,0.35);
+  z-index: 1100;
+  cursor: pointer;
+}
+.zoop-fab .zf-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px dotted rgba(255,255,255,0.6);
+  box-shadow: 0 0 0 3px rgba(255,30,86,0.12) inset;
+  animation: spin 12s linear infinite, zfPulse 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.zoop-fab i { font-size: 18px; }
+@keyframes zfPulse {
+  0%,100% { transform: scale(1); opacity: .9; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+@media (max-width: 575px) {
+  .zoop-fab { right: 14px; bottom: 14px; width: 50px; height: 50px; }
+}
+

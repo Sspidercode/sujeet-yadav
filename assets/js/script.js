@@ -173,6 +173,22 @@
     });
   }
 
+  // Global ZOOP AI floating button (hide on playground route)
+  (function mountZoopFab(){
+    const isPlayground = /\/playground\/?/.test(location.pathname);
+    if (isPlayground) return;
+    const fab = document.createElement('button');
+    fab.type = 'button';
+    fab.className = 'zoop-fab';
+    fab.title = 'Chat with ZOOP AI';
+    fab.innerHTML = '<span class="zf-ring"></span><i class="fa-solid fa-comments"></i>';
+    fab.addEventListener('click', ()=>{
+      // Keep hashless relative path for portability
+      window.location.href = 'playground/index.html';
+    });
+    document.body.appendChild(fab);
+  })();
+
   // Fog effect: follow cursor across the page
   (function setupFogEffect() {
     const bodyEl = document.body;
