@@ -137,6 +137,36 @@ footer { border-top: 1px solid rgba(255,255,255,0.06); }
 /* Enhancements to match header/navbar design */
 .navbar .navbar-nav { gap: 18px; }
 
+/* Footer contacts (injected) */
+.footer-flex .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.footer-contacts {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.footer-contacts a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #e6ecff;
+  text-decoration: none;
+  background: #0f1118;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: .88rem;
+}
+.footer-contacts a:hover { border-color: var(--v2-primary); color: #fff; }
+.footer-contacts .wa { color: #25D366; }
+.footer-contacts .ph { color: #e6ecff; }
+@media (max-width: 576px) {
+  .footer-flex .container { flex-direction: column; gap: 8px; }
+}
 /* Re-style gradient button shadow and padding */
 .btn-gradient { box-shadow: 0 6px 18px rgba(255,77,121,0.25), 0 8px 26px rgba(109,94,249,0.22); padding-top: 10px; padding-bottom: 10px; }
 
@@ -453,5 +483,59 @@ main .container img[src$="icon.svg"] {
 }
 @media (max-width: 575px) {
   .zoop-fab { right: 14px; bottom: 14px; width: 50px; height: 50px; }
+}
+
+/* =========================
+   Left-side fixed Call + WhatsApp buttons
+   ========================= */
+.left-fabs {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1100;
+}
+.left-fab {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+  cursor: pointer;
+  text-decoration: none;
+}
+.left-fab i { font-size: 18px; }
+.fab-phone { background: linear-gradient(135deg, #2b3040, #3b4460); }
+.fab-wa { background: linear-gradient(135deg, #25D366, #1ebe57); }
+.left-fab .zf-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px dotted rgba(255,255,255,0.6);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.12) inset;
+  animation: spin 14s linear infinite;
+  pointer-events: none;
+}
+/* Distinct ring colors per button */
+.fab-phone .zf-ring { border-color: rgba(77,163,255,0.9); box-shadow: 0 0 0 3px rgba(77,163,255,0.22) inset; }
+.fab-wa .zf-ring { border-color: rgba(37,211,102,0.95); box-shadow: 0 0 0 3px rgba(37,211,102,0.25) inset; }
+/* Inner thin ring */
+.left-fab::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  pointer-events: none;
+}
+.fab-phone::after { border-color: rgba(77,163,255,0.75); }
+.fab-wa::after { border-color: rgba(37,211,102,0.8); }
+@media (max-width: 575px) {
+  .left-fabs { left: 14px; bottom: 14px; }
+  .left-fab { width: 46px; height: 46px; }
 }
 

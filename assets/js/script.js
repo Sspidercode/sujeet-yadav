@@ -209,6 +209,32 @@
       bodyEl.style.setProperty('--fog-opacity', '0');
     });
   })();
+
+  // Footer contacts inside footer disabled per request (use left fixed buttons instead)
+
+  // Left fixed Call + WhatsApp buttons (like chatbot fab, but on left)
+  (function mountLeftFabs(){
+    if (document.getElementById('leftFabs')) return;
+    const container = document.createElement('div');
+    container.id = 'leftFabs';
+    container.className = 'left-fabs';
+    const phoneBtn = document.createElement('a');
+    phoneBtn.className = 'left-fab fab-phone';
+    phoneBtn.href = 'tel:+917275537561';
+    phoneBtn.title = 'Call +91 7275537561';
+    phoneBtn.innerHTML = '<span class="zf-ring"></span><i class="fa-solid fa-phone"></i>';
+    const waMsg = encodeURIComponent('Namaste Sujeet! Mujhe aapse baat karni hai 😊');
+    const waBtn = document.createElement('a');
+    waBtn.className = 'left-fab fab-wa';
+    waBtn.href = `https://wa.me/917275537561?text=${waMsg}`;
+    waBtn.target = '_blank';
+    waBtn.rel = 'noopener';
+    waBtn.title = 'WhatsApp';
+    waBtn.innerHTML = '<span class="zf-ring"></span><i class="fa-brands fa-whatsapp"></i>';
+    container.appendChild(phoneBtn);
+    container.appendChild(waBtn);
+    document.body.appendChild(container);
+  })();
 })();
 
 

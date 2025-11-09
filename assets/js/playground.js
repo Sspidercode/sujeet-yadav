@@ -38,6 +38,13 @@
   // Loader overlay
   const aiLoader = document.getElementById('aiLoader');
   const aiLoaderMsg = document.getElementById('aiLoaderMsg');
+  // Language selector
+  const langSelect = document.getElementById('langSelect');
+
+  // Language persistence
+  const LANG_KEY = 'playground_lang';
+  function loadLang(){ return localStorage.getItem(LANG_KEY) || 'hinglish'; }
+  function saveLang(v){ localStorage.setItem(LANG_KEY, v); }
   function maskKey(k){
     if (!k) return 'Not set';
     const last4 = k.slice(-4);
@@ -62,7 +69,11 @@
   if ('speechSynthesis' in window) {
     const loadVoices = ()=>{
       const voices = window.speechSynthesis.getVoices() || [];
-      selectedVoice = voices.find(v=>/hi-|en-IN|India/i.test((v.lang||'')+' '+(v.name||''))) || voices[0] || null;
+      const lang = loadLang();
+      const pref = lang === 'english' ? /en-(IN|US)|English/i
+                  : lang === 'punjabi' ? /pa-|Punjabi/i
+                  : /hi-|en-IN|India|Hindi/i; // default Hinglish/Hindi/Bhojpuri
+      selectedVoice = voices.find(v=>pref.test((v.lang||'')+' '+(v.name||''))) || voices[0] || null;
     };
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
@@ -70,15 +81,37 @@
   function stripCodeBlocks(text){
     return String(text || '').replace(/```[\s\S]*?```/g, ' ').replace(/\s{2,}/g, ' ').trim();
   }
+  // Clean text so TTS doesn't read special characters/markdown/links/emojis
+  function sanitizeForTTS(text){
+    let s = String(text || '');
+    // Drop fenced code blocks
+    s = s.replace(/```[\s\S]*?```/g, ' ');
+    // Keep only link text for markdown links
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
+    // Remove inline code markers/backticks/markdown emphasis/headers/blockquote symbols
+    s = s.replace(/[*_~`>#]+/g, '');
+    // Remove list bullets (dash/star/dot) at line starts or inline
+    s = s.replace(/(^|\n)\s*[-*•]\s+/g, '$1');
+    s = s.replace(/\s[-*•]\s+/g, ' ');
+    // Remove URLs
+    s = s.replace(/https?:\/\/\S+/g, '');
+    // Remove most symbols/emoji while keeping letters, numbers, whitespace and common punctuation
+    s = s.replace(/[^\p{L}\p{M}\p{N}\s\.,!?\-;:'"()]/gu, ' ');
+    // Collapse whitespace
+    s = s.replace(/\s{2,}/g, ' ').trim();
+    return s;
+  }
   function speak(text){
     if (!ttsEnabled || !('speechSynthesis' in window)) return;
-    const t = stripCodeBlocks(text);
+    const t = sanitizeForTTS(text);
     if (!t) return;
     try {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(t);
       if (selectedVoice) u.voice = selectedVoice;
-      u.lang = (selectedVoice && selectedVoice.lang) || 'en-IN';
+      const l = loadLang();
+      const langCode = l === 'english' ? 'en-IN' : (l === 'punjabi' ? 'pa-IN' : 'hi-IN');
+      u.lang = (selectedVoice && selectedVoice.lang) || langCode;
       u.rate = 1.0;
       u.pitch = 1.0;
       window.speechSynthesis.speak(u);
@@ -99,7 +132,9 @@
   function startListening(){
     try {
       recognition = new SpeechRecognition();
-      recognition.lang = 'hi-IN';
+      // Map speech input language from selected language
+      const l = loadLang();
+      recognition.lang = l === 'english' ? 'en-IN' : 'hi-IN';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
       recognition.onstart = ()=>{ isListening = true; updateUiStates(); };
@@ -166,6 +201,16 @@
     notify('🔓 API key cleared. Using funny mode.');
     if (keyPreview) keyPreview.textContent = 'Saved key: Not set';
   });
+
+  // Initialize language selector
+  if (langSelect) {
+    try { langSelect.value = loadLang(); } catch {}
+    langSelect.addEventListener('change', ()=>{
+      const v = langSelect.value || 'hinglish';
+      saveLang(v);
+      notify(`Language set to: ${v}`);
+    });
+  }
 
   settingsBtns?.forEach(btn => btn.addEventListener('click', ()=>{
     if (modalEl && window.bootstrap) {
@@ -343,6 +388,8 @@
       if (i % 3 === 0) await new Promise(r=>setTimeout(r, 10));
       chatLog.scrollTop = chatLog.scrollHeight;
     }
+    // After streaming, render nicely with markdown
+    bubble.innerHTML = markdownToHtml(text || '');
     // persist + speak
     history.push({ who:'bot', text, ts: Date.now() });
     saveHistory(history);
@@ -393,7 +440,9 @@
     // This won't touch emphasis (**bold**/***bold-italic***) because those don't have spaces around the asterisks
     text = text
       .replace(/(^|\n)[^\S\r\n]*\*\s+(?=\S)/g, '$1- ')   // star at start of line
-      .replace(/(?<!\*)\s\*\s+(?=\S)/g, '\n- ');         // star after a space inside a paragraph
+      .replace(/(?<!\*)\s\*\s+(?=\S)/g, '\n- ')          // star after a space inside a paragraph
+      .replace(/(^|\n)[^\S\r\n]*•\s+(?=\S)/g, '$1- ')    // bullet dot at line start
+      .replace(/(?<!•)\s•\s+(?=\S)/g, '\n- ');           // bullet dot inline -> new line
 
     // Block-level parsing
     const lines = text.split('\n');
@@ -583,12 +632,37 @@
     const gender = loadGender();
     const nick = name ? name : 'dost';
     const honor = gender === 'male' ? 'bhai' : (gender === 'female' ? 'didi' : 'yaar');
-    const openers = [
-      'Arey wah, sawaal to solid tha!','Mazaa aa gaya padhke yaar!','Kya baat hai, legendary sawaal!','Chai garam, dimaag thanda… chalo shuru karte!']
-    const punch = [
-      'Short answer: haan, but details me thoda sabr chahiye.','Answer: 42… bas context missing hai 😄','Solution mil gaya, par pehle pani-puri break?','Aap genius ho ya main overthink kar raha hoon?']
-    const tips = [
-      'Pro tip: ek baar retry karo, kaam ho jayega.','Secret sauce: thoda sabr + thoda jugaad.','Bonus: agar na ho to blame Wi‑Fi.','Emoji daalo, UX 73% better lagta hai.']
+    const lang = loadLang();
+    // Language-specific presets
+    const sets = {
+      hinglish: {
+        openers: ['Arey wah, sawaal to solid tha!','Mazaa aa gaya padhke yaar!','Kya baat hai, zabardast Q!','Chai garam, dimaag ready — chalo!'],
+        punch: ['Short answer: haan, but details me thoda sabr chahiye.','Answer: 42… bas context missing hai 😄','Solution mil gaya, pehle thoda samjhte hain.','Sahi track pe ho!'],
+        tips: ['Pro tip: ek baar retry karo.','Secret sauce: thoda sabr + thoda jugaad.','Bonus: agar na ho to blame Wi‑Fi.','Emoji add karo, UX better लगेगा.']
+      },
+      hindi: {
+        openers: ['वाह! आपका सवाल कमाल का है।','बहुत बढ़िया प्रश्न!','शानदार—चलिये शुरू करते हैं।','अच्छा लगा आपका सवाल पढ़कर।'],
+        punch: ['संक्षेप में: हाँ, लेकिन थोड़ी जानकारी और चाहिए।','उत्तर: 42… संदर्भ ज़रूरी है 😄','समाधान मिल गया, अब समझते हैं।','आप सही दिशा में हैं!'],
+        tips: ['सलाह: एक बार पुनः प्रयास करें।','धैर्य + सही तरीका = सफलता।','नेटवर्क दिक्कत हो तो बाद में कोशिश करें।','बिंदुवार लिखें—स्पष्ट रहेगा।']
+      },
+      english: {
+        openers: ['Great question!','Love that question.','Awesome — let’s dive in.','Nice, let’s break it down.'],
+        punch: ['Short answer: yes, with a few nuances.','Answer: 42… context matters 😄','Got it; let’s reason it out.','You’re on the right track!'],
+        tips: ['Pro tip: try once more.','Patience + structure = clarity.','Check the network and retry.','Use bullets for clarity.']
+      },
+      bhojpuri: {
+        openers: ['अरे वाह! सवाल त गजब बा।','बहुत बढ़िया सवाल बा।','एकदम मजेदार — चलीं सुरु करीं।','सुन के अच्छा लागल।'],
+        punch: ['छोट में: हँ, बाकि थोरा बिसतर चाहीं।','जवाब: 42… बाकि संदर्भ जरूरी बा 😄','हल मिल गइल, अब समझ लीं।','रास्ता सही बा!'],
+        tips: ['सलाह: एक बेर फेर ट्राई करीं।','धीरज + तरीका = सफ़लता।','नेट बिगड़ल त बाद में ट्राई करीं।','बिंदु में लिखीं—साफ़ रही।']
+      },
+      punjabi: {
+        openers: ['वाह! वधिया सवाल।','शानदार प्रश्न!','चंगा लगा — आओ शुरू करिए।','कमाल दा सवाल।'],
+        punch: ['खुलासा: हां, पर थोडे नुक्ते ने।','Answer: 42… संदर्भ जरूरी 😄','हल मिल गया, हुण समझदे आं।','तुसी सही राह ते हो!'],
+        tips: ['टिप: इक वार फेर कोशिश करो।','सब्र + सही तरीका = सफलता।','नेटवर्क मसला होवे त बाद च ट्राई करो।','बुलेट्स नाल लिखो—साफ़ रहेगा।']
+      }
+    };
+    const pack = sets[lang] || sets['hinglish'];
+    const openers = pack.openers, punch = pack.punch, tips = pack.tips;
     const emojis = ['😄','🧠','✨','⚙️','🫡','😎','🫠'];
     const rand = (arr)=>arr[Math.floor(Math.random()*arr.length)];
     const qShort = q.length > 140 ? q.slice(0,140)+'...' : q;
@@ -598,11 +672,19 @@
   async function askGemini(key, prompt){
     const primaryModel = 'gemini-2.5-flash';
     const fallbackModel = 'gemini-1.5-flash-latest';
+    const lang = loadLang();
+    const langGuide =
+      lang === 'english' ? 'Reply strictly in natural English.'
+      : lang === 'hindi' ? 'Reply strictly in natural Hindi (Devanagari script).'
+      : lang === 'punjabi' ? 'Reply strictly in Punjabi (Gurmukhi script where possible).'
+      : lang === 'bhojpuri' ? 'Reply strictly in Bhojpuri (use Devanagari or simple phonetic).'
+      : 'Reply strictly in Hinglish (Hindi+English mix using Roman Hindi + English).';
     const persona = [
-      'Tum ek friendly, empathetic assistant ho.',
-      'Hinglish me natural baat karo, short paragraphs + bullet points use karo.',
-      'Context ko quickly summarize karke phir answer do, aur end me 1 helpful follow-up pucho.',
-      'Agar code ho to ek fenced code block (```lang) do, aur 1-2 short tips.',
+      'You are a friendly, empathetic assistant.',
+      'Use short paragraphs and bullet points when helpful.',
+      'Summarize context briefly, then answer; end with one helpful follow-up question.',
+      'If sharing code, provide exactly one fenced code block (```lang) and 1-2 concise tips.',
+      langGuide
     ].join(' ');
     const profile = `User: ${loadName()||'Guest'} (${loadGender()||'unknown'}). Personalize subtly.`;
     const fullPrompt = `${persona}\n${profile}\n${prompt}`;
