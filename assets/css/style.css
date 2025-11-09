@@ -414,7 +414,7 @@ main .container img[src$="icon.svg"] {
   display: inline-block;
   border-radius: 50%;
   filter: drop-shadow(0 10px 28px rgba(0,0,0,0.45));
-  animation: spin 22s linear infinite;
+  /* animation: spin 22s linear infinite; */
 }
 
 /* =========================
