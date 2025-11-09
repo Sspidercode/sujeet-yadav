@@ -1,197 +1,495 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Playground | Sujeet Yadav</title>
-    <meta name="description" content="Ask anything — get funny answers. Optional Gemini (bring your own key)." />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-    <link href="../assets/css/style.css" rel="stylesheet" />
-    <style>
-      .pg-wrap { max-width: 1200px; margin: 0 auto; }
-      .chat-shell { background: rgba(15,17,24,0.75); border:1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; box-shadow: 0 18px 60px rgba(0,0,0,.35); backdrop-filter: blur(6px); }
-      .chat-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.06); background:#0f1118; }
-      .head-left { display:flex; align-items:center; gap:10px; }
-      .status-dot { width:10px; height:10px; border-radius:50%; background:#33d17a; box-shadow:0 0 0 4px rgba(51,209,122,.15); }
-      .chat-log { height: 58vh; overflow: auto; padding: 16px; }
-      .msg { display: grid; gap: 6px; margin-bottom: 14px; }
-      .msg .who { font-size: .72rem; color:#8ea0c6; }
-      .msg-row { display:flex; align-items:flex-start; gap:10px; }
-      .msg-row.me { justify-content:flex-end; }
-      .avatar { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.8rem; color:#fff; background:linear-gradient(90deg, var(--v2-primary), var(--v2-primary-2)); flex:0 0 34px; }
-      .avatar.user { background:#445b9c; }
-      .avatar-img { width:34px; height:34px; border-radius:50%; object-fit: cover; display:block; }
-      .user-side { display:flex; flex-direction:column; align-items:center; gap:4px; }
-      .who-user { font-size: .72rem; color:#8ea0c6; }
-      .msg .bubble { background:#0b0d12; border:1px solid rgba(255,255,255,0.10); border-radius: 10px; padding: 10px 12px; color:#e6ecff; max-width: min(900px, 92vw); margin-top: 17px; }
-      .msg.user .bubble { border-color: rgba(255,30,86,0.25); }
-      .msg.bot .bubble { border-color: rgba(109,94,249,0.25); }
-      .chat-input { background:#0b0d12; border:1px solid rgba(255,255,255,0.1); color:#e6ecff; }
-      .chat-input:focus { border-color:#ff1e56; box-shadow: 0 0 0 0.2rem rgba(255,30,86,0.18); }
-      .settings { background:#0f1118; border:1px solid rgba(255,255,255,0.08); border-radius: 8px; padding:12px; }
-      .tiny { font-size:.8rem; color:#8ea0c6; }
-      .badge-gem { background: linear-gradient(90deg, var(--v2-primary), var(--v2-primary-2)); }
 
-      /* Code block styling with copy */
-      .code-block { background:#0b0d12; border:1px solid rgba(255,255,255,0.12); border-radius:8px; overflow:hidden; margin: 10px 0; }
-      .code-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 10px; background:#0f1118; border-bottom:1px solid rgba(255,255,255,0.08); }
-      .code-lang { color:#8ea0c6; font-size:.8rem; }
-      .btn-copy { background:transparent; color:#e6ecff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:4px 8px; font-size:.8rem; }
-      .btn-copy:hover { border-color:#ff1e56; }
-      pre { margin:0; padding:12px; color:#e6ecff; overflow:auto; }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Playground | Sujeet Yadav</title>
+  <meta name="description" content="Ask anything — get funny answers. Optional Gemini (bring your own key)." />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="../assets/css/style.css" rel="stylesheet" />
+  <style>
+     /* Disable page scroll for this playground screen */
+     html, body { overflow: hidden; height: 100%; }
+ 
+    .pg-wrap {
+      max-width: 100%;
+      margin-top: -40px;
+    }
 
-      /* Typing animation */
-      .typing { display:inline-flex; align-items:center; gap:6px; }
-      .dot { width:6px; height:6px; border-radius:50%; background:#c9d4f1; opacity:.6; animation: blink 1.2s infinite; }
-      .dot:nth-child(2){ animation-delay:.2s; }
-      .dot:nth-child(3){ animation-delay:.4s; }
-      @keyframes blink { 0%, 80%, 100% { opacity:.2 } 40% { opacity:1 } }
+    .chat-shell {
+      background: rgba(15, 17, 24, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .35);
+      backdrop-filter: blur(6px);
+    }
 
-      /* Avatar picker */
-      .avatar-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap:12px; }
-      .avatar-item { position:relative; width:72px; height:72px; border-radius:50%; overflow:hidden; border:2px solid rgba(255,255,255,0.15); cursor:pointer; transition: border-color .2s ease; }
-      .avatar-item img { width:100%; height:100%; object-fit:cover; display:block; }
-      .avatar-item.selected { border-color:#33d17a; }
-      .avatar-item .tick { position:absolute; right:2px; bottom:2px; width:18px; height:18px; border-radius:50%; background:#33d17a; color:#0b0d12; display:flex; align-items:center; justify-content:center; font-size:.7rem; box-shadow:0 0 0 3px rgba(51,209,122,.2); }
-    </style>
-  </head>
-  <body class="theme-dark">
-    <canvas id="smokeCanvas"></canvas>
-    <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
-      <div class="container py-2">
-        <a class="navbar-brand fw-bold brand-v2 signature-font" href="../index.html#home">SUJEET YADAV</a>
-        <a class="btn btn-outline-v2 btn-sm" href="../index.html#skills">Back</a>
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: #0f1118;
+    }
+
+    .head-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #33d17a;
+      box-shadow: 0 0 0 4px rgba(51, 209, 122, .15);
+    }
+
+    .chat-log {
+      height: 58vh;
+      overflow: auto;
+      padding: 16px;
+    }
+
+    .msg {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .msg .who {
+      font-size: .72rem;
+      color: #8ea0c6;
+    }
+
+    .msg-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .msg-row.me {
+      justify-content: flex-end;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .8rem;
+      color: #fff;
+      background: linear-gradient(90deg, var(--v2-primary), var(--v2-primary-2));
+      flex: 0 0 34px;
+    }
+
+    .avatar.user {
+      background: #445b9c;
+    }
+
+    .avatar-img {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .user-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .who-user {
+      font-size: .72rem;
+      color: #8ea0c6;
+    }
+
+    .msg .bubble {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #e6ecff;
+      max-width: min(900px, 92vw);
+      margin-top: 17px;
+    }
+
+    .msg.user .bubble {
+      border-color: rgba(255, 30, 86, 0.25);
+    }
+
+    .msg.bot .bubble {
+      border-color: rgba(109, 94, 249, 0.25);
+    }
+
+    .chat-input {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e6ecff;
+    }
+
+    .chat-input:focus {
+      border-color: #ff1e56;
+      box-shadow: 0 0 0 0.2rem rgba(255, 30, 86, 0.18);
+    }
+
+    /* Suggestions row */
+    .suggestions { border-top: 1px solid rgba(255,255,255,0.06); background:#0f1118; padding: 10px 12px; display:flex; flex-wrap: wrap; gap:8px; }
+    .chip { background:#0b0d12; border:1px solid rgba(255,255,255,0.12); color:#e6ecff; border-radius:999px; padding:6px 10px; font-size:.86rem; cursor:pointer; }
+    .chip:hover { border-color: var(--v2-primary); color:#fff; }
+
+    .settings {
+      background: #0f1118;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .tiny {
+      font-size: .8rem;
+      color: #8ea0c6;
+    }
+
+    .badge-gem {
+      background: linear-gradient(90deg, var(--v2-primary), var(--v2-primary-2));
+    }
+
+    /* Code block styling with copy */
+    .code-block {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 10px;
+      background: #0f1118;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .code-lang {
+      color: #8ea0c6;
+      font-size: .8rem;
+    }
+
+    .btn-copy {
+      background: transparent;
+      color: #e6ecff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: .8rem;
+    }
+
+    .btn-copy:hover {
+      border-color: #ff1e56;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      color: #e6ecff;
+      overflow: auto;
+    }
+    /* Markdown styling inside message bubble */
+    .bubble h1,.bubble h2,.bubble h3,.bubble h4,.bubble h5,.bubble h6 { color:#ffffff; margin: 6px 0 6px; font-weight: 700; }
+    .bubble h1{ font-size:1.35rem; } .bubble h2{ font-size:1.25rem; } .bubble h3{ font-size:1.15rem; }
+    .bubble ul, .bubble ol { margin: 6px 0 10px 18px; }
+    .bubble li { margin: 4px 0; }
+    .bubble code { background:#0f1118; border:1px solid rgba(255,255,255,0.12); padding:2px 5px; border-radius:4px; }
+    .bubble a { color:#ff5478; text-decoration: none; }
+    .bubble a:hover { text-decoration: underline; }
+    .bubble blockquote { margin: 8px 0; padding: 8px 10px; border-left: 3px solid #ff5478; background:#0f1118; color:#c9d4f1; }
+
+    /* Typing animation */
+    .typing {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #c9d4f1;
+      opacity: .6;
+      animation: blink 1.2s infinite;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    @keyframes blink {
+
+      0%,
+      80%,
+      100% {
+        opacity: .2
+      }
+
+      40% {
+        opacity: 1
+      }
+    }
+
+    /* Avatar picker */
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 12px;
+    }
+
+    .avatar-item {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      transition: border-color .2s ease;
+    }
+
+    .avatar-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar-item.selected {
+      border-color: #33d17a;
+    }
+
+    .avatar-item .tick {
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #33d17a;
+      color: #0b0d12;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      box-shadow: 0 0 0 3px rgba(51, 209, 122, .2);
+    }
+  </style>
+</head>
+
+<body class="theme-dark">
+  <canvas id="smokeCanvas"></canvas>
+  <nav class="navbar navbar-dark nav-v2" style="position: sticky; top: 0; z-index: 10;">
+    <div class="container py-2">
+      <a class="navbar-brand fw-bold brand-v2 signature-font" href="../index.html#home"><img class="brand-logo"
+          src="../assets/image/sujeet.png" alt="Sujeet Yadav" /></a>
+          <a class="btn btn-outline-v2 btn-sm" href="">Playground</a>
+      <a class="btn btn-outline-v2 btn-sm" href="../index.html#skills">Back</a>
+    </div>
+  </nav>
+  <main class="section">
+    <div class="container pg-wrap">
+      <div id="settingsPanel" class="settings mb-3" style="display:none;">
+        <div class="row g-2 align-items-end mt-2">
+          <div class="col-md-8">
+            <label class="tiny">Upload Your Avatar (local only)</label>
+            <input id="avatarInput" type="file" accept="image/*" class="form-control chat-input" />
+          </div>
+          <div class="col-md-4 tiny">Tip: Square image works best. Stored in your browser only.</div>
+        </div>
+        <div class="tiny mt-2">By default, responses are generated locally (funny mode). If you add a valid Gemini API
+          key, the bot will try real responses.</div>
       </div>
-    </nav>
-    <main class="section pt-6">
-      <div class="container pg-wrap">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <div>
-            <p class="eyebrow-v2 mb-1">Playground</p>
-            <h1 class="title-v2 mb-0">Ask Anything <span class="badge badge-gem ms-2">ZOOP AI</span></h1>
-          </div>
-        </div>
 
-        <div id="settingsPanel" class="settings mb-3" style="display:none;">
-          <div class="row g-2 align-items-end mt-2">
-            <div class="col-md-8">
-              <label class="tiny">Upload Your Avatar (local only)</label>
-              <input id="avatarInput" type="file" accept="image/*" class="form-control chat-input" />
+      <div class="row g-3 align-items-start">
+        <div class="col-lg-2">
+          <div class="chat-shell" style="position:sticky; top:96px;">
+            <div class="chat-header">
+              <div class="head-left">
+                <div class="status-dot"></div>
+                <div>
+                  <div class="title-v2 mb-0" style="font-size:1.1rem;">Profile</div>
+                  <div class="tiny">Your details</div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button id="editProfileBtn" class="btn btn-outline-v2 btn-sm"><i class="fa-solid fa-pen"></i></button>
+              </div>
             </div>
-            <div class="col-md-4 tiny">Tip: Square image works best. Stored in your browser only.</div>
+            <div class="p-3 d-flex flex-column align-items-center text-center">
+              <img id="profileAvatar" class="avatar-img" alt="avatar" style="width:96px;height:96px;" />
+              <div id="profileName" class="title-v2 mt-2" style="font-size:1.2rem;">Guest</div>
+              <div id="profileGender" class="tiny">—</div>
+            </div>
           </div>
-          <div class="tiny mt-2">By default, responses are generated locally (funny mode). If you add a valid Gemini API key, the bot will try real responses.</div>
         </div>
+        <div class="col-lg-10">
+          <div class="chat-shell">
+            <div class="chat-header">
+              <div class="head-left">
+                <div class="status-dot"></div>
+                <div>
+                  <div class="title-v2 mb-0" style="font-size:1.1rem;">ZOOP AI</div>
+                  <div class="tiny">Always-on Hinglish mode</div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+               <button id="voiceBtn" class="btn btn-outline-v2 btn-sm" title="Voice Input (start/stop)"><i class="fa-solid fa-microphone"></i></button>
+               <button id="ttsBtn" class="btn btn-outline-v2 btn-sm" title="Speak Replies (toggle)"><i class="fa-solid fa-volume-high"></i></button>
+               <button id="keyBtn" class="btn btn-outline-v2 btn-sm" title="Set API Key"><i class="fa-solid fa-key"></i></button>
+               <button id="regenBtn" class="btn btn-outline-v2 btn-sm" title="Regenerate last answer"><i class="fa-solid fa-rotate-right"></i></button>
+               <button id="clearChatBtn" class="btn btn-outline-v2 btn-sm" title="Clear conversation"><i class="fa-regular fa-trash-can"></i></button>
+                <button id="toggleSettings" class="btn btn-outline-v2 btn-sm"><i class="fa-solid fa-gear"></i></button>
+                <button id="logoutBtn" class="btn btn-outline-v2 btn-sm" title="Logout"><i
+                    class="fa-solid fa-power-off"></i></button>
+              </div>
+            </div>
+            <div id="suggestions" class="suggestions" style="display:none;"></div>
+            <div id="chatLog" class="chat-log"></div>
+            <div class="p-2 border-top border-opacity-10">
+              <div class="d-flex gap-2 align-items-end">
+                <button class="btn btn-outline-v2 btn-sm" title="Attach" disabled><i
+                    class="fa-solid fa-paperclip"></i></button>
+                <textarea id="chatInput" rows="1" class="form-control chat-input"
+                  placeholder="Type your question... (Shift+Enter for new line)"></textarea>
+                <button id="sendBtn" class="btn btn-primary-v2 btn-sm"><i class="fa-solid fa-paper-plane"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
 
-        <div class="row g-3 align-items-start">
-          <div class="col-lg-8">
-        <div class="chat-shell">
-          <div class="chat-header">
-            <div class="head-left">
-              <div class="status-dot"></div>
-              <div>
-                <div class="title-v2 mb-0" style="font-size:1.1rem;">ZOOP AI</div>
-                <div class="tiny">Always-on Hinglish mode</div>
+      <!-- Avatar Modal -->
+      <div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content modal-dark-v2">
+            <div class="modal-header border-0">
+              <h5 class="modal-title">Choose Your Avatar</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="tiny">Your Name</label>
+                <input id="profileNameInput" type="text" class="form-control chat-input" placeholder="Your name" />
+              </div>
+              <div class="mb-3">
+                <label class="tiny">Gender</label>
+                <select id="profileGenderSelect" class="form-select chat-input">
+                  <option value="">Select gender…</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="tiny d-block mb-2">Choose from presets</label>
+                <div id="presetGrid" class="avatar-grid">
+                  <div class="avatar-item" data-avatar-url="../assets/image/sky.jpg"><img src="../assets/image/sky.jpg"
+                      alt="sky" /><span class="tick" style="display:none;">✓</span></div>
+                  <div class="avatar-item" data-avatar-url="../assets/image/img2.jpeg"><img
+                      src="../assets/image/img2.jpeg" alt="a2" /><span class="tick" style="display:none;">✓</span></div>
+                  <div class="avatar-item" data-avatar-url="../assets/image/img3.png"><img
+                      src="../assets/image/img3.png" alt="a3" /><span class="tick" style="display:none;">✓</span></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="tiny">Or Upload Custom</label>
+                <input id="modalAvatarInput" type="file" accept="image/*" class="form-control chat-input" />
+              </div>
+              <div class="mb-2 tiny">Preview</div>
+              <div class="d-flex justify-content-center">
+                <img id="avatarPreview" alt="preview" class="avatar-img" style="width:72px;height:72px;" />
               </div>
             </div>
-            <div class="d-flex align-items-center gap-2">
-              <button id="toggleSettings" class="btn btn-outline-v2 btn-sm"><i class="fa-solid fa-gear"></i></button>
-              <button id="logoutBtn" class="btn btn-outline-v2 btn-sm" title="Logout"><i class="fa-solid fa-power-off"></i></button>
-            </div>
-          </div>
-          <div id="chatLog" class="chat-log"></div>
-          <div class="p-2 border-top border-opacity-10">
-            <div class="d-flex gap-2 align-items-end">
-              <button class="btn btn-outline-v2 btn-sm" title="Attach" disabled><i class="fa-solid fa-paperclip"></i></button>
-              <textarea id="chatInput" rows="1" class="form-control chat-input" placeholder="Type your question... (Shift+Enter for new line)"></textarea>
-              <button id="sendBtn" class="btn btn-primary-v2 btn-sm"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-          </div>
-        </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="chat-shell" style="position:sticky; top:96px;">
-              <div class="chat-header">
-                <div class="head-left">
-                  <div class="status-dot"></div>
-                  <div>
-                    <div class="title-v2 mb-0" style="font-size:1.1rem;">Profile</div>
-                    <div class="tiny">Your details</div>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <button id="editProfileBtn" class="btn btn-outline-v2 btn-sm"><i class="fa-solid fa-pen"></i></button>
-                </div>
-              </div>
-              <div class="p-3 d-flex flex-column align-items-center text-center">
-                <img id="profileAvatar" class="avatar-img" alt="avatar" style="width:96px;height:96px;"/>
-                <div id="profileName" class="title-v2 mt-2" style="font-size:1.2rem;">Guest</div>
-                <div id="profileGender" class="tiny">—</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Avatar Modal -->
-        <div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modal-dark-v2">
-              <div class="modal-header border-0">
-                <h5 class="modal-title">Choose Your Avatar</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-3">
-                  <label class="tiny">Your Name</label>
-                  <input id="profileNameInput" type="text" class="form-control chat-input" placeholder="Your name" />
-                </div>
-                <div class="mb-3">
-                  <label class="tiny">Gender</label>
-                  <select id="profileGenderSelect" class="form-select chat-input">
-                    <option value="">Select gender…</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label class="tiny d-block mb-2">Choose from presets</label>
-                  <div id="presetGrid" class="avatar-grid">
-                    <div class="avatar-item" data-avatar-url="../assets/image/sky.jpg"><img src="../assets/image/sky.jpg" alt="sky"/><span class="tick" style="display:none;">✓</span></div>
-                    <div class="avatar-item" data-avatar-url="../assets/image/img2.jpeg"><img src="../assets/image/img2.jpeg" alt="a2"/><span class="tick" style="display:none;">✓</span></div>
-                    <div class="avatar-item" data-avatar-url="../assets/image/img3.png"><img src="../assets/image/img3.png" alt="a3"/><span class="tick" style="display:none;">✓</span></div>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label class="tiny">Or Upload Custom</label>
-                  <input id="modalAvatarInput" type="file" accept="image/*" class="form-control chat-input" />
-                </div>
-                <div class="mb-2 tiny">Preview</div>
-                <div class="d-flex justify-content-center">
-                  <img id="avatarPreview" alt="preview" class="avatar-img" style="width:72px;height:72px;" />
-                </div>
-              </div>
-              <div class="modal-footer border-0">
-                <button type="button" class="btn btn-outline-v2 btn-sm" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="saveAvatarBtn" class="btn btn-primary-v2 btn-sm">Save Avatar</button>
-              </div>
+            <div class="modal-footer border-0">
+              <button type="button" class="btn btn-outline-v2 btn-sm" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" id="saveAvatarBtn" class="btn btn-primary-v2 btn-sm">Save Avatar</button>
             </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
+    <div class="container" style="margin-top: 20px;text-align: center;">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
+  </main>
+  <!-- API Key Modal -->
+  <div class="modal fade" id="apiKeyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content modal-dark-v2">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Connect Gemini API</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="tiny mb-2">Paste your Google Gemini API key. Your key is stored locally in this browser only.</div>
+          <input id="gemKeyModalInput" type="password" class="form-control chat-input" placeholder="Paste API key here" />
+          <div id="keyPreview" class="tiny mt-2 text-muted-2">Saved key: Not set</div>
+          <div class="tiny mt-2">
+            Don’t have one? Open Google AI Studio, create a key, and paste it here.
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button id="keyClearBtn" type="button" class="btn btn-outline-v2 btn-sm">Clear</button>
+          <button id="keySaveBtn" type="button" class="btn btn-primary-v2 btn-sm">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- AI Connect Loader -->
+  <style>
+    .ai-loader {
+      position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(60% 80% at 50% 50%, rgba(15,17,24,0.92), rgba(15,17,24,0.86));
+      z-index: 2000; transition: opacity .25s ease, visibility .25s ease;
+    }
+    .ai-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .ai-loader-card {
+      background:#0f1118; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:18px 18px; text-align:center;
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+    }
+    .ai-loader-card img { width:72px; height:72px; border-radius:50%; object-fit:cover; display:block; margin:0 auto 10px; }
+    .ai-loader-msg { color:#c9d4f1; font-size:.95rem; }
+  </style>
+  <div id="aiLoader" class="ai-loader">
+    <div class="ai-loader-card">
+      <img src="../assets/image/ai.gif" alt="AI connecting" />
+      <div id="aiLoaderMsg" class="ai-loader-msg">Connecting to AI…</div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/playground.js"></script>
+  <script src="../assets/js/smoke.js"></script>
+</body>
 
-    <footer class="py-4 small text-center text-muted-2">
-      <div class="container">© <span id="year"></span> Sujeet Yadav — All rights reserved.</div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="../assets/js/script.js"></script>
-    <script src="../assets/js/playground.js"></script>
-    <script src="../assets/js/smoke.js"></script>
-  </body>
 </html>

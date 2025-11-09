@@ -2,6 +2,10 @@
   const chatLog = document.getElementById('chatLog');
   const chatInput = document.getElementById('chatInput');
   const sendBtn = document.getElementById('sendBtn');
+  const suggestionsEl = document.getElementById('suggestions');
+  const keyBtn = document.getElementById('keyBtn');
+  const clearChatBtn = document.getElementById('clearChatBtn');
+  const regenBtn = document.getElementById('regenBtn');
   const yearLabel = document.getElementById('year');
   if (yearLabel) yearLabel.textContent = new Date().getFullYear().toString();
 
@@ -23,12 +27,145 @@
   const profileGender = document.getElementById('profileGender');
   const editProfileBtn = document.getElementById('editProfileBtn');
   const logoutBtn = document.getElementById('logoutBtn');
+  const voiceBtn = document.getElementById('voiceBtn');
+  const ttsBtn = document.getElementById('ttsBtn');
+  // API key modal elements
+  const apiKeyModalEl = document.getElementById('apiKeyModal');
+  const gemKeyModalInput = document.getElementById('gemKeyModalInput');
+  const keySaveBtn = document.getElementById('keySaveBtn');
+  const keyClearBtn = document.getElementById('keyClearBtn');
+  const keyPreview = document.getElementById('keyPreview');
+  // Loader overlay
+  const aiLoader = document.getElementById('aiLoader');
+  const aiLoaderMsg = document.getElementById('aiLoaderMsg');
+  function maskKey(k){
+    if (!k) return 'Not set';
+    const last4 = k.slice(-4);
+    const masked = '•'.repeat(Math.max(8, k.length - 4)) + last4; // always at least 8 bullets for obfuscation
+    return masked;
+  }
+  let isListening = false;
+  let ttsEnabled = (localStorage.getItem('playground_tts_enabled') ?? 'true') !== 'false';
+  let selectedVoice = null;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  function setBtnState(btn, on){
+    if (!btn) return;
+    btn.classList.toggle('btn-primary-v2', !!on);
+    btn.classList.toggle('btn-outline-v2', !on);
+  }
+  function updateUiStates(){
+    setBtnState(ttsBtn, ttsEnabled);
+    setBtnState(voiceBtn, isListening);
+  }
+  updateUiStates();
+  // Prepare voices for TTS
+  if ('speechSynthesis' in window) {
+    const loadVoices = ()=>{
+      const voices = window.speechSynthesis.getVoices() || [];
+      selectedVoice = voices.find(v=>/hi-|en-IN|India/i.test((v.lang||'')+' '+(v.name||''))) || voices[0] || null;
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  function stripCodeBlocks(text){
+    return String(text || '').replace(/```[\s\S]*?```/g, ' ').replace(/\s{2,}/g, ' ').trim();
+  }
+  function speak(text){
+    if (!ttsEnabled || !('speechSynthesis' in window)) return;
+    const t = stripCodeBlocks(text);
+    if (!t) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(t);
+      if (selectedVoice) u.voice = selectedVoice;
+      u.lang = (selectedVoice && selectedVoice.lang) || 'en-IN';
+      u.rate = 1.0;
+      u.pitch = 1.0;
+      window.speechSynthesis.speak(u);
+    } catch {}
+  }
+  ttsBtn?.addEventListener('click', ()=>{
+    ttsEnabled = !ttsEnabled;
+    localStorage.setItem('playground_tts_enabled', String(ttsEnabled));
+    updateUiStates();
+    notify(ttsEnabled ? '🔊 Voice playback enabled.' : '🔇 Voice playback disabled.');
+  });
+  voiceBtn?.addEventListener('click', ()=>{
+    if (!SpeechRecognition) { notify('🎤 Voice input not supported on this browser.'); return; }
+    if (isListening) { try { recognition.stop(); } catch {} return; }
+    startListening();
+  });
+  let recognition;
+  function startListening(){
+    try {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'hi-IN';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onstart = ()=>{ isListening = true; updateUiStates(); };
+      recognition.onresult = (e)=>{
+        const txt = e.results?.[0]?.[0]?.transcript || '';
+        if (txt) {
+          if (chatInput) chatInput.value = txt;
+          onSend();
+        }
+      };
+      recognition.onerror = (e)=>{ notify('🎤 Voice error: ' + (e.error || 'unknown')); };
+      recognition.onend = ()=>{ isListening = false; updateUiStates(); };
+      recognition.start();
+    } catch (e) {
+      notify('🎤 Unable to start voice input.');
+    }
+  }
 
   function loadKey(){ return localStorage.getItem('gemini_api_key') || 'AIzaSyAugCGYlkFy-16ggbiT-Num7ddyCaqUbWg'; }
   function saveKey(k){ localStorage.setItem('gemini_api_key', k); }
   function clearKey(){ localStorage.removeItem('gemini_api_key'); }
 
   if (gemKeyInput) gemKeyInput.value = loadKey();
+  // Key button -> open modal
+  keyBtn?.addEventListener('click', ()=>{
+    if (window.bootstrap && apiKeyModalEl) {
+      try {
+        const inst = bootstrap.Modal.getOrCreateInstance(apiKeyModalEl);
+        if (gemKeyModalInput) gemKeyModalInput.value = '';
+        if (keyPreview) keyPreview.textContent = 'Saved key: ' + maskKey(loadKey());
+        inst.show();
+        setTimeout(()=>{ try{ gemKeyModalInput?.focus(); }catch{} }, 50);
+      } catch {
+        // fallback to prompt if modal fails
+        const current = loadKey();
+        const k = prompt('Enter your Gemini API key:', current || '');
+        if (k === null) return;
+        const v = (k || '').trim();
+        if (!v) { clearKey(); notify('🔓 API key cleared. Using funny mode.'); }
+        else { saveKey(v); notify('🔐 API key saved locally.'); }
+      }
+    } else {
+      const current = loadKey();
+      const k = prompt('Enter your Gemini API key:', current || '');
+      if (k === null) return;
+      const v = (k || '').trim();
+      if (!v) { clearKey(); notify('🔓 API key cleared. Using funny mode.'); }
+      else { saveKey(v); notify('🔐 API key saved locally.'); }
+    }
+  });
+  keySaveBtn?.addEventListener('click', ()=>{
+    const v = gemKeyModalInput?.value?.trim() || '';
+    if (!v) { notify('Please paste a valid API key.'); return; }
+    saveKey(v);
+    notify('🔐 API key saved locally.');
+    if (keyPreview) keyPreview.textContent = 'Saved key: ' + maskKey(loadKey());
+    try { const inst = bootstrap.Modal.getInstance(apiKeyModalEl); inst?.hide(); } catch {}
+    // After saving, try connection
+    checkGeminiConnectivity();
+  });
+  keyClearBtn?.addEventListener('click', ()=>{
+    clearKey();
+    if (gemKeyModalInput) gemKeyModalInput.value = '';
+    notify('🔓 API key cleared. Using funny mode.');
+    if (keyPreview) keyPreview.textContent = 'Saved key: Not set';
+  });
 
   settingsBtns?.forEach(btn => btn.addEventListener('click', ()=>{
     if (modalEl && window.bootstrap) {
@@ -93,6 +230,61 @@
     addMessage('bot', `ℹ️ ${text}`);
   }
 
+  // ====================== Chat history ======================
+  const HISTORY_KEY = 'playground_chat_history_v2';
+  function loadHistory(){
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+  }
+  function saveHistory(list){
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); } catch {}
+  }
+  let history = loadHistory();
+  function renderHistory(){
+    chatLog.innerHTML = '';
+    history.forEach(m => addMessage(m.who, m.text));
+  }
+  if (history.length) renderHistory();
+  clearChatBtn?.addEventListener('click', ()=>{
+    history = [];
+    saveHistory(history);
+    chatLog.innerHTML = '';
+    renderSuggestions(true);
+    notify('🧹 Chat cleared.');
+  });
+  regenBtn?.addEventListener('click', ()=>{
+    const lastUser = [...history].reverse().find(m => m.who === 'user');
+    if (!lastUser) { notify('No message to regenerate.'); return; }
+    chatInput.value = lastUser.text;
+    onSend();
+  });
+
+  // ====================== Suggestions ======================
+  const SUGGESTIONS = [
+    'Mujhe ek resume summary likh do',
+    'MERN stack job interview tips?',
+    'Code ko optimize kaise karu?',
+    'SQL vs NoSQL — kab kaun sa?',
+    'AWS pe Node app deploy guide'
+  ];
+  function renderSuggestions(forceShow){
+    if (!suggestionsEl) return;
+    const shouldShow = forceShow || chatLog.children.length === 0;
+    suggestionsEl.style.display = shouldShow ? 'flex' : 'none';
+    if (!shouldShow) return;
+    suggestionsEl.innerHTML = '';
+    SUGGESTIONS.forEach(s=>{
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.type = 'button';
+      b.textContent = s;
+      b.addEventListener('click', ()=>{
+        if (chatInput) chatInput.value = s;
+        onSend();
+      });
+      suggestionsEl.appendChild(b);
+    });
+  }
+
   function addMessage(who, text){
     const wrap = document.createElement('div');
     wrap.className = `msg ${who}`;
@@ -101,6 +293,8 @@
       const botAv = loadBotAvatar();
       const botAvatarEl = botAv ? `<img src="${botAv}" alt="bot" class="avatar avatar-img"/>` : `<div class="avatar">AI</div>`;
       wrap.innerHTML = head + `<div class="msg-row">${botAvatarEl}<div class="bubble">${renderBotMessage(text)}</div></div>`;
+      // Speak bot messages if enabled
+      speak(text);
     } else {
       const av = loadAvatar();
       const avatarEl = av ? `<img src="${av}" alt="me" class="avatar avatar-img user"/>` : `<div class="avatar user">U</div>`;
@@ -110,6 +304,10 @@
     }
     chatLog.appendChild(wrap);
     chatLog.scrollTop = chatLog.scrollHeight;
+    // persist
+    history.push({ who, text, ts: Date.now() });
+    saveHistory(history);
+    renderSuggestions(false);
   }
 
   function addTyping(){
@@ -121,26 +319,140 @@
     return wrap;
   }
 
+  // Stream simple text (no code blocks), else fallback to full render
+  async function addBotStreaming(text){
+    if ((text||'').includes('```')) { addMessage('bot', text); return; }
+    const wrap = document.createElement('div');
+    wrap.className = 'msg bot';
+    const head = `<div class="who">ZOOP AI</div>`;
+    const botAv = loadBotAvatar();
+    const botAvatarEl = botAv ? `<img src="${botAv}" alt="bot" class="avatar avatar-img"/>` : `<div class="avatar">AI</div>`;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.innerHTML = botAvatarEl;
+    row.appendChild(bubble);
+    wrap.innerHTML = head;
+    wrap.appendChild(row);
+    chatLog.appendChild(wrap);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    const chars = (text||'').split('');
+    for (let i=0;i<chars.length;i++){
+      bubble.textContent += chars[i];
+      if (i % 3 === 0) await new Promise(r=>setTimeout(r, 10));
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+    // persist + speak
+    history.push({ who:'bot', text, ts: Date.now() });
+    saveHistory(history);
+    speak(text);
+  }
+
   function renderBotMessage(text){
-    const parts = [];
+    // Split into fenced code blocks and markdown text segments, render appropriately
+    const segments = [];
     const re = /```(\w+)?\n([\s\S]*?)```/g;
     let last = 0, m;
-    while ((m = re.exec(text))){
+    while ((m = re.exec(text))) {
       const before = text.slice(last, m.index);
-      if (before) parts.push({ type:'text', content: before });
-      parts.push({ type:'code', lang: (m[1]||'text'), code: m[2] });
+      if (before) segments.push({ type: 'md', content: before });
+      segments.push({ type: 'code', lang: (m[1] || 'text'), code: m[2] });
       last = re.lastIndex;
     }
-    const after = text.slice(last);
-    if (after) parts.push({ type:'text', content: after });
-    return parts.map(p => p.type === 'text'
-      ? escapeHtml(p.content).replace(/\n/g,'<br/>')
-      : `<div class="code-block"><div class=\"code-head\"><span class=\"code-lang\">${escapeHtml(p.lang)}</span><button class=\"btn-copy\" data-copy>Copy</button></div><pre><code>${escapeHtml(p.code)}</code></pre></div>`
-    ).join('');
+    const tail = text.slice(last);
+    if (tail) segments.push({ type: 'md', content: tail });
+
+    return segments.map(s => {
+      if (s.type === 'code') {
+        return `<div class="code-block"><div class="code-head"><span class="code-lang">${escapeHtml(s.lang)}</span><button class="btn-copy" data-copy>Copy</button></div><pre><code>${escapeHtml(s.code)}</code></pre></div>`;
+      }
+      return markdownToHtml(s.content);
+    }).join('');
   }
 
   function escapeHtml(s){
     return s.replace(/[&<>"']/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[c]));
+  }
+
+  // Minimal Markdown → HTML for chat bubbles (headings, lists, emphasis, links, inline code)
+  function markdownToHtml(src){
+    if (!src) return '';
+    // Escape first
+    let text = escapeHtml(src);
+    // Inline code `code`
+    text = text.replace(/`([^`]+?)`/g, '<code>$1</code>');
+    // Bold-italic, bold, italic (order matters)
+    text = text.replace(/\*\*\*([^\*]+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    text = text.replace(/\*\*([^\*]+?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*([^\*]+?)\*/g, '<em>$1</em>');
+    // Links [text](url)
+    text = text.replace(/\[([^\]]+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+    // Normalize inline star bullets like " ... * item" into a new line bullet
+    // This won't touch emphasis (**bold**/***bold-italic***) because those don't have spaces around the asterisks
+    text = text
+      .replace(/(^|\n)[^\S\r\n]*\*\s+(?=\S)/g, '$1- ')   // star at start of line
+      .replace(/(?<!\*)\s\*\s+(?=\S)/g, '\n- ');         // star after a space inside a paragraph
+
+    // Block-level parsing
+    const lines = text.split('\n');
+    const out = [];
+    let inUl = false, inOl = false, inBlockquote = false;
+    function closeLists(){
+      if (inUl) { out.push('</ul>'); inUl = false; }
+      if (inOl) { out.push('</ol>'); inOl = false; }
+    }
+    function closeQuote(){
+      if (inBlockquote) { out.push('</blockquote>'); inBlockquote = false; }
+    }
+    for (const raw of lines){
+      const line = raw.trimEnd();
+      const trimmed = line.trim();
+      if (!trimmed){
+        closeLists(); closeQuote();
+        out.push('<p></p>');
+        continue;
+      }
+      // Headings ###### to #
+      const h = trimmed.match(/^(#{1,6})\s+(.*)$/);
+      if (h){
+        closeLists(); closeQuote();
+        const level = h[1].length;
+        out.push(`<h${level}>${h[2]}</h${level}>`);
+        continue;
+      }
+      // Blockquote
+      const bq = trimmed.match(/^>\s?(.*)$/);
+      if (bq){
+        closeLists();
+        if (!inBlockquote) { out.push('<blockquote>'); inBlockquote = true; }
+        out.push(bq[1]);
+        continue;
+      }
+      // Ordered list 1. item
+      if (/^\d+[.)]\s+/.test(trimmed)){
+        closeQuote();
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        if (!inOl) { out.push('<ol>'); inOl = true; }
+        out.push('<li>' + trimmed.replace(/^\d+[.)]\s+/, '') + '</li>');
+        continue;
+      }
+      // Unordered list - item or * item
+      if (/^[-*]\s+/.test(trimmed)){
+        closeQuote();
+        if (inOl) { out.push('</ol>'); inOl = false; }
+        if (!inUl) { out.push('<ul>'); inUl = true; }
+        out.push('<li>' + trimmed.replace(/^[-*]\s+/, '') + '</li>');
+        continue;
+      }
+      // Paragraph fallback
+      closeLists(); closeQuote();
+      out.push('<p>' + trimmed + '</p>');
+    }
+    closeLists(); closeQuote();
+    // Merge empty <p></p> visually with line breaks
+    return out.join('').replace(/<p><\/p>/g, '<br/>');
   }
 
   function loadAvatar(){ return localStorage.getItem('playground_user_avatar') || ''; }
@@ -183,6 +495,41 @@
   }
 
   renderProfile();
+  // At load, check connectivity with quick overlay
+  checkGeminiConnectivity();
+  async function checkGeminiConnectivity(){
+    if (!aiLoader) return;
+    showLoader('Connecting to AI…');
+    const key = loadKey();
+    if (!key) {
+      showLoader('No API key found. Using funny mode.');
+      setTimeout(hideLoader, 1200);
+      return false;
+    }
+    try {
+      // very small ping
+      const res = await askGemini(key, 'ping');
+      if (res) {
+        showLoader('AI connected!');
+        setTimeout(hideLoader, 600);
+        return true;
+      }
+      showLoader('AI response empty. Using funny mode.');
+      setTimeout(hideLoader, 1200);
+      return false;
+    } catch (e) {
+      showLoader('AI not reachable. Using funny mode.');
+      setTimeout(hideLoader, 1400);
+      return false;
+    }
+  }
+  function showLoader(msg){
+    try { if (aiLoaderMsg && msg) aiLoaderMsg.textContent = msg; } catch {}
+    if (aiLoader) aiLoader.classList.remove('hidden');
+  }
+  function hideLoader(){
+    if (aiLoader) aiLoader.classList.add('hidden');
+  }
 
   // Logout: clear cached user data and reset UI
   logoutBtn?.addEventListener('click', ()=>{
@@ -209,15 +556,26 @@
       try {
         const ans = await askGemini(key, q);
         typingEl.remove();
-        addMessage('bot', ans || funny(q));
+        if (ans) { await addBotStreaming(ans); } else { addMessage('bot', funny(q)); }
         return;
       } catch (e) {
         typingEl.remove();
-        addMessage('bot', '🤖 Gemini se connect nahi ho paya. Chaliye funny mode me try karte hain!');
+        const msg = e?.message || '';
+        if (/HTTP_401|HTTP_403/i.test(msg)) {
+          addMessage('bot', '❌ API key invalid ya unauthorized hai. Key button se apni Gemini key set kijiye.');
+        } else if (/HTTP_404|model/i.test(msg)) {
+          addMessage('bot', '⚠️ Model unavailable. Thodi der baad try karein.');
+        } else if (/HTTP_429|quota|rate/i.test(msg)) {
+          addMessage('bot', '⏳ Quota/rate limit hit ho gaya. Kuch time baad retry kijiye.');
+        } else if (/network|failed|fetch/i.test(msg.toLowerCase())) {
+          addMessage('bot', '🌐 Network issue. Internet connection check karke fir try karein.');
+        } else {
+          addMessage('bot', '🤖 Gemini se connect nahi ho paya. Chaliye funny mode me try karte hain!');
+        }
       }
     }
     typingEl.remove();
-    addMessage('bot', funny(q));
+    await addBotStreaming(funny(q));
   }
 
   function funny(q){
@@ -238,32 +596,62 @@
   }
 
   async function askGemini(key, prompt){
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-    const style = 'Tum ek witty assistant ho. Hamesha Hinglish (Hindi+English mix) me funny tone me reply karo. Agar user code maange to ek single fenced code block (```lang) ke saath answer do, aur short Hinglish explanation bhi.';
-    const profile = `User Profile -> Name: ${loadName()||'Guest'}, Gender: ${loadGender()||'unknown'}. In responses, subtly personalize using user name/gender.`;
-    const body = { contents: [{ parts: [{ text: style }, { text: profile }, { text: prompt }]}] };
-    // Prefer axios if available (header-based key), else fetch fallback
-    if (window.axios) {
-      const resp = await axios.post(url, body, {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-goog-api-key': key
-        },
-        maxBodyLength: Infinity
-      });
-      const data = resp?.data;
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      return text.trim();
-    } else {
+    const primaryModel = 'gemini-2.5-flash';
+    const fallbackModel = 'gemini-1.5-flash-latest';
+    const persona = [
+      'Tum ek friendly, empathetic assistant ho.',
+      'Hinglish me natural baat karo, short paragraphs + bullet points use karo.',
+      'Context ko quickly summarize karke phir answer do, aur end me 1 helpful follow-up pucho.',
+      'Agar code ho to ek fenced code block (```lang) do, aur 1-2 short tips.',
+    ].join(' ');
+    const profile = `User: ${loadName()||'Guest'} (${loadGender()||'unknown'}). Personalize subtly.`;
+    const fullPrompt = `${persona}\n${profile}\n${prompt}`;
+    const body = { contents: [{ parts: [{ text: fullPrompt }]}] };
+
+    async function callModel(model, apiVersion){
+      const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent`;
+      // Debug aid
+      try { console.debug('Gemini request →', url); } catch {}
+      // Try axios first, then fetch as a resilient fallback
+      try {
+        if (window.axios) {
+          const resp = await axios.post(url, body, {
+            headers: { 'Content-Type': 'application/json', 'X-goog-api-key': key },
+            maxBodyLength: Infinity,
+            transitional: { clarifyTimeoutError: true }
+          });
+          const data = resp?.data;
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (text) return text.trim();
+        }
+      } catch (err) {
+        try { console.warn('Axios Gemini error:', err?.response?.status, err?.message); } catch {}
+      }
+      // Fetch fallback
       const res = await fetch(url + '?key=' + encodeURIComponent(key), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        mode: 'cors',
+        credentials: 'omit'
       });
-      if (!res.ok) throw new Error('Bad response');
+      if (!res.ok) {
+        const status = res.status;
+        const msg = `HTTP_${status}`;
+        throw new Error(msg);
+      }
       const data = await res.json();
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       return text.trim();
+    }
+    // Prefer v1beta first (most consumer keys support v1beta). Then try v1.
+    try { return await callModel(primaryModel, 'v1beta'); }
+    catch {
+      try { return await callModel(primaryModel, 'v1'); }
+      catch {
+        try { return await callModel(fallbackModel, 'v1beta'); }
+        catch { return await callModel(fallbackModel, 'v1'); }
+      }
     }
   }
 
@@ -282,6 +670,11 @@
     try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent='Copy', 1200); } catch { btn.textContent='Failed'; setTimeout(()=>btn.textContent='Copy', 1200); }
   });
 
-  // greet
-  addMessage('bot', 'Namaste! Main ZOOP AI hoon — funny Hinglish mode me. Sawaal puchho, agar code chahiye to main code block + copy option ke saath dunga.');
+  // greet (time-based)
+  (function greet(){
+    const h = new Date().getHours();
+    const hi = h < 12 ? 'Good Morning' : (h < 18 ? 'Good Afternoon' : 'Good Evening');
+    addMessage('bot', `${hi}! Main ZOOP AI hoon — aap ke saath human jaise baat karunga. Niche suggestions se start kar sakte ho, ya apna sawaal type karo.`);
+    renderSuggestions();
+  })();
 })();
