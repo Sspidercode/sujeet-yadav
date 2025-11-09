@@ -183,14 +183,8 @@
     fab.title = 'Chat with ZOOP AI';
     fab.innerHTML = '<span class="zf-ring"></span><i class="fa-solid fa-comments"></i>';
     fab.addEventListener('click', ()=>{
-      // Build a relative path to root, then append playground/index.html
-      const path = location.pathname || '/';
-      const segs = path.split('/').filter(Boolean);
-      // If current path ends with .html, exclude the file segment for directory depth
-      const endsWithFile = segs.length && /\.[a-zA-Z0-9]+$/.test(segs[segs.length - 1]);
-      const dirDepth = Math.max(0, segs.length - (endsWithFile ? 1 : 0));
-      const prefix = dirDepth === 0 ? '' : '../'.repeat(dirDepth);
-      window.location.href = prefix + 'playground/index.html';
+      // Redirect to hosted Playground (GitHub Pages)
+      window.location.href = 'https://sspidercode.github.io/sujeet-yadav/playground';
     });
     document.body.appendChild(fab);
   })();
