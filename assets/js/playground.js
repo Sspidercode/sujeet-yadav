@@ -123,9 +123,27 @@
     updateUiStates();
     notify(ttsEnabled ? '🔊 Voice playback enabled.' : '🔇 Voice playback disabled.');
   });
-  voiceBtn?.addEventListener('click', ()=>{
+  // Basic mobile/permission helpers
+  let micStream = null;
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  async function ensureMic(){
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return true; // try anyway
+    if (micStream?.active) return true;
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      return true;
+    } catch (err) {
+      notify('🎤 Mic permission denied. Please allow microphone access.');
+      return false;
+    }
+  }
+  voiceBtn?.addEventListener('click', async ()=>{
     if (!SpeechRecognition) { notify('🎤 Voice input not supported on this browser.'); return; }
+    if (isMobile && !isSecure) { notify('🔒 Voice works best on HTTPS or localhost.'); }
     if (isListening) { try { recognition.stop(); } catch {} return; }
+    const ok = await ensureMic();
+    if (!ok) return;
     startListening();
   });
   let recognition;
@@ -135,21 +153,45 @@
       // Map speech input language from selected language
       const l = loadLang();
       recognition.lang = l === 'english' ? 'en-IN' : 'hi-IN';
-      recognition.interimResults = false;
+      // On some Android Chrome builds, continuous mode can crash (SIGILL). Keep it off.
+      recognition.continuous = false;
+      recognition.interimResults = true;       // show partials; we only send on final below
       recognition.maxAlternatives = 1;
       recognition.onstart = ()=>{ isListening = true; updateUiStates(); };
       recognition.onresult = (e)=>{
-        const txt = e.results?.[0]?.[0]?.transcript || '';
-        if (txt) {
-          if (chatInput) chatInput.value = txt;
-          onSend();
+        // Collect final results only to send; ignore interim for send
+        for (let i = e.resultIndex; i < e.results.length; i++){
+          const res = e.results[i];
+          if (res.isFinal) {
+            const txt = res[0]?.transcript || '';
+            if (txt) {
+              if (chatInput) chatInput.value = txt;
+              onSend();
+            }
+          }
         }
       };
-      recognition.onerror = (e)=>{ notify('🎤 Voice error: ' + (e.error || 'unknown')); };
-      recognition.onend = ()=>{ isListening = false; updateUiStates(); };
+      recognition.onerror = (e)=>{
+        const err = e?.error || 'unknown';
+        if (err === 'not-allowed') notify('🔒 Permission blocked. Allow mic in site settings.');
+        else if (err === 'no-speech') notify('🤐 No speech detected. Please try again.');
+        else if (err === 'audio-capture') notify('🎙️ No microphone found or busy.');
+        else if ((e?.message||'').toUpperCase().includes('SIGILL')) notify('⚠️ Device audio crashed (SIGILL). Please update Chrome or restart the browser.');
+        else notify('🎤 Voice error: ' + err);
+      };
+      recognition.onend = ()=>{
+        isListening = false;
+        updateUiStates();
+        // Do NOT auto-restart on mobile to avoid crashes (SIGILL).
+      };
       recognition.start();
     } catch (e) {
-      notify('🎤 Unable to start voice input.');
+      const msg = (e && (e.message||'')).toString();
+      if (msg.toUpperCase().includes('SIGILL')) {
+        notify('⚠️ Voice engine crashed (SIGILL). Try updating Chrome/WebView or restarting the browser.');
+      } else {
+        notify('🎤 Unable to start voice input.');
+      }
     }
   }
 
