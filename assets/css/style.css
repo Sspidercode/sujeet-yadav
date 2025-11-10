@@ -477,6 +477,7 @@ main .container img[src$="icon.svg"] {
   pointer-events: none;
 }
 .zoop-fab i { font-size: 18px; }
+.zoop-fab .zoop-fab-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: block; }
 @keyframes zfPulse {
   0%,100% { transform: scale(1); opacity: .9; }
   50% { transform: scale(1.05); opacity: 1; }

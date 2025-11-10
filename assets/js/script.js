@@ -1,5 +1,46 @@
 // Theme toggle and small UX behaviors
 (function () {
+  async function triggerDownload(url){
+    try {
+      const abs = new URL(url, location.href).href;
+      // Try fetching and downloading via blob (more reliable on mobile)
+      try {
+        const res = await fetch(abs, { credentials: 'same-origin' });
+        if (res.ok) {
+          const ab = await res.arrayBuffer();
+          // Force generic binary type to avoid inline PDF viewers
+          const blob = new Blob([ab], { type: 'application/octet-stream' });
+          const objectUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = objectUrl;
+          const name = abs.split('/').pop() || 'download';
+          a.setAttribute('download', name);
+          a.style.display = 'none';
+          a.target = '_self';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(()=>URL.revokeObjectURL(objectUrl), 1500);
+          return;
+        }
+      } catch (_) {
+        // fall through to direct anchor download
+      }
+      const a = document.createElement('a');
+      a.href = abs;
+      const name = abs.split('/').pop() || 'download';
+      a.setAttribute('download', name);
+      a.style.display = 'none';
+      a.target = '_self';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (_) {
+      // Final fallback
+      window.location.href = url;
+    }
+  }
+
   const themeToggleButton = document.getElementById('themeToggle');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const saved = localStorage.getItem('pref-theme');
@@ -58,7 +99,7 @@
   if (cvBtn) {
     cvBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      const url = cvBtn.getAttribute('href');
+      const url = cvBtn.getAttribute('data-file') || cvBtn.getAttribute('href') || './assets/image/Sujeetyadav.pdf';
       if (!url) return;
 
       if (window.Swal) {
@@ -74,12 +115,12 @@
           color: '#e6ecff'
         }).then((res) => {
           if (res.isConfirmed) {
-            window.open(url, '_blank');
+            triggerDownload(url);
           }
         });
       } else {
         if (confirm('Download CV?')) {
-          window.open(url, '_blank');
+          triggerDownload(url);
         }
       }
     });
@@ -149,7 +190,7 @@
   if (cvBtnModal) {
     cvBtnModal.addEventListener('click', (e) => {
       e.preventDefault();
-      const url = cvBtnModal.getAttribute('href');
+      const url = cvBtnModal.getAttribute('data-file') || cvBtnModal.getAttribute('href') || './assets/image/Sujeetyadav.pdf';
       if (!url) return;
       if (window.Swal) {
         Swal.fire({
@@ -164,11 +205,11 @@
           color: '#e6ecff'
         }).then((res) => {
           if (res.isConfirmed) {
-            window.open(url, '_blank');
+            triggerDownload(url);
           }
         });
       } else {
-        if (confirm('Download CV?')) window.open(url, '_blank');
+        if (confirm('Download CV?')) { triggerDownload(url); }
       }
     });
   }
@@ -177,11 +218,19 @@
   (function mountZoopFab(){
     const isPlayground = /\/playground\/?/.test(location.pathname);
     if (isPlayground) return;
+    // Resolve icon path relative to current page depth
+    const path = location.pathname || '/';
+    const segs = path.split('/').filter(Boolean);
+    const endsWithFile = segs.length && /\.[a-zA-Z0-9]+$/.test(segs[segs.length - 1]);
+    const dirDepth = Math.max(0, segs.length - (endsWithFile ? 1 : 0));
+    const prefix = dirDepth === 0 ? '' : '../'.repeat(dirDepth);
+    const iconSrc = '/home/clavis/Documents/SspiderCode/sky_cv/assets/image/ai.gif';
     const fab = document.createElement('button');
     fab.type = 'button';
     fab.className = 'zoop-fab';
     fab.title = 'Chat with ZOOP AI';
-    fab.innerHTML = '<span class="zf-ring"></span><i class="fa-solid fa-comments"></i>';
+    fab.innerHTML = '<span class="zf-ring"></span><img alt="ZOOP AI" class="zoop-fab-img" />';
+    try { fab.querySelector('.zoop-fab-img').src = iconSrc; } catch {}
     fab.addEventListener('click', ()=>{
       // Redirect to hosted Playground (GitHub Pages)
       window.location.href = 'https://sspidercode.github.io/sujeet-yadav/playground';

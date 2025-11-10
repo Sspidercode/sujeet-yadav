@@ -254,6 +254,21 @@
     });
   }
 
+  // Profile menu behavior (toggle + actions)
+  (function setupProfileMenu(){
+    const trigger = document.getElementById('pmTrigger');
+    const dd = document.getElementById('pmDropdown');
+    const btnEdit = document.getElementById('pmEdit');
+    const btnLogout = document.getElementById('pmLogout');
+    const btnView = document.getElementById('pmViewProfile');
+    if (!trigger || !dd) return;
+    trigger.addEventListener('click', (e)=>{ e.stopPropagation(); dd.classList.toggle('open'); });
+    document.addEventListener('click', (e)=>{ if (!dd.classList.contains('open')) return; if (e.target.closest('#pmDropdown') || e.target.closest('#pmTrigger')) return; dd.classList.remove('open'); });
+    btnEdit?.addEventListener('click', ()=>{ dd.classList.remove('open'); settingsBtns?.forEach(b=>b.click()); });
+    btnLogout?.addEventListener('click', ()=>{ dd.classList.remove('open'); logoutBtn?.click(); });
+    btnView?.addEventListener('click', ()=>{ dd.classList.remove('open'); try { document.querySelector('#profile')?.scrollIntoView({behavior:'smooth'}); } catch {} });
+  })();
+
   settingsBtns?.forEach(btn => btn.addEventListener('click', ()=>{
     if (modalEl && window.bootstrap) {
       const inst = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -583,6 +598,17 @@
     if (profileAvatar) profileAvatar.src = av || '../assets/image/sky.jpg';
     if (profileName) profileName.textContent = n || 'Guest';
     if (profileGender) profileGender.textContent = g ? g.charAt(0).toUpperCase()+g.slice(1) : '—';
+    // Update menu avatars and info if present
+    try {
+      const pmAvatar = document.getElementById('pmAvatar');
+      const pmAvatarLg = document.getElementById('pmAvatarLg');
+      const pmName = document.getElementById('pmName');
+      const pmMeta = document.getElementById('pmMeta');
+      if (pmAvatar) pmAvatar.src = av || '../assets/image/sky.jpg';
+      if (pmAvatarLg) pmAvatarLg.src = av || '../assets/image/sky.jpg';
+      if (pmName) pmName.textContent = n || 'Guest';
+      if (pmMeta) pmMeta.textContent = n ? (g || 'Logged in') : 'Not logged in';
+    } catch {}
   }
 
   renderProfile();
