@@ -55,6 +55,11 @@
   let ttsEnabled = (localStorage.getItem('playground_tts_enabled') ?? 'true') !== 'false';
   let selectedVoice = null;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  // Voice input enablement (disabled by default on refresh)
+  const VOICE_INPUT_KEY = 'playground_voice_input_enabled';
+  function loadVoiceEnabled(){ return localStorage.getItem(VOICE_INPUT_KEY) === 'true'; }
+  function saveVoiceEnabled(v){ localStorage.setItem(VOICE_INPUT_KEY, String(!!v)); }
+  let voiceInputEnabled = loadVoiceEnabled() || false;
   function setBtnState(btn, on){
     if (!btn) return;
     btn.classList.toggle('btn-primary-v2', !!on);
@@ -62,7 +67,8 @@
   }
   function updateUiStates(){
     setBtnState(ttsBtn, ttsEnabled);
-    setBtnState(voiceBtn, isListening);
+    // Highlight mic if listening or enabled
+    setBtnState(voiceBtn, isListening || voiceInputEnabled);
   }
   updateUiStates();
   // Prepare voices for TTS
@@ -139,10 +145,24 @@
     }
   }
   voiceBtn?.addEventListener('click', async ()=>{
+    // First click toggles enablement; second click starts listening
+    if (!voiceInputEnabled) {
+      voiceInputEnabled = true;
+      saveVoiceEnabled(true);
+      updateUiStates();
+      notify('🎙️ Voice input enabled. Tap mic again to start listening.');
+      return;
+    }
     if (!SpeechRecognition) { notify('🎤 Voice input not supported on this browser.'); return; }
     if (isMobile && !isSecure) { notify('🔒 Voice works best on HTTPS or localhost.'); }
+    // If a prior SIGILL crash was detected, keep voice disabled for this session
+    if (sessionStorage.getItem('voice_disabled_sigill') === '1') {
+      notify('⚠️ Voice is disabled due to a prior device crash. Restart browser or update Chrome/WebView to re-enable.');
+      return;
+    }
     if (isListening) { try { recognition.stop(); } catch {} return; }
-    const ok = await ensureMic();
+    // Avoid getUserMedia on mobile (can conflict with SpeechRecognition and cause native crashes)
+    const ok = isMobile ? true : await ensureMic();
     if (!ok) return;
     startListening();
   });
@@ -155,20 +175,16 @@
       recognition.lang = l === 'english' ? 'en-IN' : 'hi-IN';
       // On some Android Chrome builds, continuous mode can crash (SIGILL). Keep it off.
       recognition.continuous = false;
-      recognition.interimResults = true;       // show partials; we only send on final below
+      recognition.interimResults = false;      // keep simple to reduce crash surface
       recognition.maxAlternatives = 1;
       recognition.onstart = ()=>{ isListening = true; updateUiStates(); };
       recognition.onresult = (e)=>{
         // Collect final results only to send; ignore interim for send
-        for (let i = e.resultIndex; i < e.results.length; i++){
-          const res = e.results[i];
-          if (res.isFinal) {
-            const txt = res[0]?.transcript || '';
-            if (txt) {
-              if (chatInput) chatInput.value = txt;
-              onSend();
-            }
-          }
+        const res = e.results?.[0];
+        const txt = res?.[0]?.transcript || '';
+        if (txt) {
+          if (chatInput) chatInput.value = txt;
+          onSend();
         }
       };
       recognition.onerror = (e)=>{
@@ -176,7 +192,10 @@
         if (err === 'not-allowed') notify('🔒 Permission blocked. Allow mic in site settings.');
         else if (err === 'no-speech') notify('🤐 No speech detected. Please try again.');
         else if (err === 'audio-capture') notify('🎙️ No microphone found or busy.');
-        else if ((e?.message||'').toUpperCase().includes('SIGILL')) notify('⚠️ Device audio crashed (SIGILL). Please update Chrome or restart the browser.');
+        else if ((e?.message||'').toUpperCase().includes('SIGILL')) {
+          sessionStorage.setItem('voice_disabled_sigill', '1');
+          notify('⚠️ Device audio crashed (SIGILL). Voice disabled for this session. Please update Chrome/WebView or restart the browser.');
+        }
         else notify('🎤 Voice error: ' + err);
       };
       recognition.onend = ()=>{
@@ -188,12 +207,141 @@
     } catch (e) {
       const msg = (e && (e.message||'')).toString();
       if (msg.toUpperCase().includes('SIGILL')) {
+        sessionStorage.setItem('voice_disabled_sigill', '1');
         notify('⚠️ Voice engine crashed (SIGILL). Try updating Chrome/WebView or restarting the browser.');
       } else {
         notify('🎤 Unable to start voice input.');
       }
     }
   }
+
+  // Stop recognition when page is hidden to avoid background crashes
+  document.addEventListener('visibilitychange', ()=>{
+    if (document.visibilityState !== 'visible') {
+      try { recognition?.abort(); } catch {}
+      isListening = false; updateUiStates();
+    }
+  });
+  window.addEventListener('pagehide', ()=>{
+    try { recognition?.abort(); } catch {}
+    isListening = false; updateUiStates();
+  });
+
+  // ====================== Mini Dino Game ======================
+  (function setupDino(){
+    const startBtn = document.getElementById('dinoStart');
+    const canvas = document.getElementById('dinoCanvas');
+    const scoreEl = document.getElementById('dinoScore');
+    const hintEl = document.getElementById('dinoHint');
+    if (!startBtn || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    let rafId = 0;
+    let running = false;
+    const W = canvas.width, H = canvas.height;
+    const groundY = H - 20;
+    const dino = { x: 50, y: groundY - 28, w: 28, h: 28, vy: 0, onGround: true };
+    let obst = [];
+    let spawnT = 0;
+    let speed = 5;
+    let score = 0;
+
+    function reset(){
+      dino.y = groundY - dino.h;
+      dino.vy = 0;
+      dino.onGround = true;
+      obst = [];
+      spawnT = 0;
+      speed = 5;
+      score = 0;
+    }
+    function jump(){
+      if (!running) return;
+      if (dino.onGround) {
+        dino.vy = -10.5;
+        dino.onGround = false;
+      }
+    }
+    function rect(x,y,w,h,c){
+      ctx.fillStyle = c;
+      ctx.fillRect(x,y,w,h);
+    }
+    function drawGround(){
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx.beginPath();
+      ctx.moveTo(0, groundY + 0.5);
+      ctx.lineTo(W, groundY + 0.5);
+      ctx.stroke();
+    }
+    function collide(a,b){
+      return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
+    }
+    function step(){
+      ctx.clearRect(0,0,W,H);
+      // physics
+      dino.vy += 0.55;
+      dino.y += dino.vy;
+      if (dino.y >= groundY - dino.h) { dino.y = groundY - dino.h; dino.vy = 0; dino.onGround = true; }
+      // spawn obstacles
+      spawnT -= 1;
+      if (spawnT <= 0){
+        const w = 14 + Math.random()*12;
+        const h = 18 + Math.random()*16;
+        obst.push({ x: W + 10, y: groundY - h, w, h });
+        spawnT = 60 + Math.random()*50;
+      }
+      // move obstacles
+      for (let i=0;i<obst.length;i++){
+        obst[i].x -= speed;
+      }
+      // remove off-screen
+      obst = obst.filter(o => o.x + o.w > -20);
+      // collisions
+      for (const o of obst){
+        if (collide(dino, o)) {
+          gameOver();
+          return;
+        }
+      }
+      // draw
+      drawGround();
+      rect(dino.x, dino.y, dino.w, dino.h, '#ff5478'); // player
+      ctx.fillStyle = '#c9d4f1';
+      for (const o of obst){ rect(o.x, o.y, o.w, o.h, '#c9d4f1'); }
+      // score & difficulty
+      score += 1;
+      if (score % 180 === 0) speed = Math.min(speed + 0.5, 12);
+      if (scoreEl) { scoreEl.style.display = ''; scoreEl.textContent = 'Score: ' + Math.floor(score/6); }
+      rafId = requestAnimationFrame(step);
+    }
+    function gameOver(){
+      running = false;
+      cancelAnimationFrame(rafId);
+      // overlay
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px Poppins, sans-serif';
+      ctx.fillText('Game Over', W/2 - 50, H/2 - 8);
+      ctx.font = '12px Poppins, sans-serif';
+      ctx.fillText('Press Play to restart', W/2 - 62, H/2 + 12);
+      if (startBtn) startBtn.textContent = 'Restart';
+      if (hintEl) hintEl.style.display = '';
+    }
+    function startGame(){
+      reset();
+      running = true;
+      if (canvas) canvas.style.display = '';
+      if (hintEl) hintEl.style.display = 'none';
+      if (startBtn) startBtn.textContent = 'Playing...';
+      step();
+    }
+    startBtn.addEventListener('click', ()=>{
+      if (!running) startGame();
+    });
+    // controls
+    window.addEventListener('keydown', (e)=>{ if (e.code === 'Space') { e.preventDefault(); jump(); } });
+    canvas.addEventListener('pointerdown', ()=> jump());
+  })();
 
   function loadKey(){ return localStorage.getItem('gemini_api_key') || 'AIzaSyAugCGYlkFy-16ggbiT-Num7ddyCaqUbWg'; }
   function saveKey(k){ localStorage.setItem('gemini_api_key', k); }

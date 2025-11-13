@@ -226,6 +226,39 @@
     .bubble a:hover { text-decoration: underline; }
     .bubble blockquote { margin: 8px 0; padding: 8px 10px; border-left: 3px solid #ff5478; background:#0f1118; color:#c9d4f1; }
 
+      /* Dev News sidebar */
+      .news-sidebar { background:#0f1118; border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; box-shadow: 0 18px 60px rgba(0,0,0,.35); position:sticky; top:96px; }
+      .news-sidebar-header { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; }
+      .news-sidebar-header h5 { color:#fff; font-weight:800; letter-spacing:.4px; margin:0; }
+      .news-sidebar-body { padding:8px; display:grid; gap:8px; }
+      .news-item { display:grid; grid-template-columns: 20px 1fr; gap:10px; align-items:start; padding:10px; border:1px solid rgba(255,255,255,0.06); border-radius:8px; background:#0b0d12; transition: border-color .2s ease, transform .2s ease; }
+      .news-item:hover { border-color: rgba(255,84,120,0.5); transform: translateY(-1px); }
+      .news-dot { width:10px; height:10px; border-radius:50%; background:linear-gradient(90deg, var(--v2-primary), var(--v2-primary-2)); margin-top:4px; box-shadow:0 0 0 4px rgba(255,84,120,0.12); }
+      .news-title { color:#e6ecff; font-weight:600; line-height:1.35; margin:0; }
+      .news-meta { color:#8ea0c6; font-size:.78rem; margin-top:4px; display:flex; gap:8px; flex-wrap:wrap; }
+      .news-badge { padding:2px 6px; border:1px solid rgba(255,255,255,0.12); border-radius:999px; font-size:.72rem; color:#c9d4f1; }
+      .news-link { color:#ff5478; text-decoration:none; }
+      .news-link:hover { text-decoration:underline; }
+      @media (max-width: 991.98px){ .news-sidebar { position: static; } }
+
+      /* Chat left sidebar (Tools menu) */
+      .chat-sidebar { position: sticky; top: 96px; }
+      .side-menu { background:#0f1118; border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; box-shadow: 0 18px 60px rgba(0,0,0,.35); }
+      .side-head { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; }
+      .side-head h5 { color:#fff; font-weight:800; letter-spacing:.4px; margin:0; }
+      .side-group { padding:8px; }
+      .side-title { color:#8ea0c6; font-size:.78rem; letter-spacing:.6px; text-transform:uppercase; margin:4px 2px 8px; }
+      .side-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; color:#e6ecff; text-decoration:none; border:1px solid rgba(255,255,255,0.06); background:#0b0d12; transition: border-color .2s ease, transform .2s ease; }
+      .side-item:hover { border-color: rgba(255,84,120,0.5); transform: translateY(-1px); }
+      .side-item i { color:#c9d4f1; width:18px; text-align:center; }
+      .side-kbd { margin-left:auto; color:#8ea0c6; font-size:.72rem; border:1px solid rgba(255,255,255,0.12); padding:2px 6px; border-radius:6px; }
+      @media (max-width: 991.98px){ .chat-sidebar { position: static; margin-bottom: 12px; } }
+
+      /* Dino mini-game */
+      .dino-wrap { background:#0f1118; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px; box-shadow: 0 18px 60px rgba(0,0,0,.35); }
+      .dino-canvas { width:100%; height:auto; border:1px dashed rgba(255,255,255,0.12); border-radius:6px; background:#0b0d12; display:block; }
+      .dino-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+      .dino-head .title { color:#fff; font-weight:700; }
       /* Profile dropdown */
       .pm-wrap { position: relative; }
       .pm-trigger { width:34px; height:34px; border-radius:50%; overflow:hidden; border:1px solid rgba(255,255,255,0.18); background:#0f1118; padding:0; }
@@ -386,9 +419,64 @@
           key, the bot will try real responses.</div>
       </div>
 
-      <div class="row g-3 align-items-start">
-        
-        <div class="col-lg-10">
+      <div class="row g-3 align-items-start" style="margin-top: -70px;">
+        <div class="col-lg-2">
+          <div class="chat-sidebar">
+            <div class="side-menu">
+              <div class="side-head">
+                <h5>Tools</h5>
+                <span class="news-badge">Shortcuts</span>
+              </div>
+              <div class="side-group">
+                <div class="side-title">Utilities</div>
+                <a class="side-item" href="https://www.promptingguide.ai/" target="_blank" rel="noopener" title="Prompt Library">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i><span>Prompt Library</span><span class="side-kbd">P</span>
+                </a>
+                <a class="side-item" href="https://prettier.io/playground/" target="_blank" rel="noopener" title="Code Formatter">
+                  <i class="fa-solid fa-code"></i><span>Code Formatter</span>
+                </a>
+                <a class="side-item" href="https://jsonlint.com/" target="_blank" rel="noopener" title="JSON Validator">
+                  <i class="fa-solid fa-brackets-curly"></i><span>JSON Validator</span>
+                </a>
+                <a class="side-item" href="https://regex101.com/" target="_blank" rel="noopener" title="Regex Tester">
+                  <i class="fa-solid fa-square-check"></i><span>Regex Tester</span>
+                </a>
+                <a class="side-item" href="https://squoosh.app/" target="_blank" rel="noopener" title="Image Optimizer">
+                  <i class="fa-regular fa-image"></i><span>Image Optimizer</span>
+                </a>
+              </div>
+              <div class="side-group">
+                <div class="side-title">Resources</div>
+                <a class="side-item" href="https://developer.mozilla.org/" target="_blank" rel="noopener" title="MDN Web Docs">
+                  <i class="fa-solid fa-book"></i><span>MDN Web Docs</span>
+                </a>
+                <a class="side-item" href="https://devdocs.io/" target="_blank" rel="noopener" title="DevDocs">
+                  <i class="fa-solid fa-layer-group"></i><span>DevDocs</span>
+                </a>
+                <a class="side-item" href="https://caniuse.com/" target="_blank" rel="noopener" title="Can I Use">
+                  <i class="fa-solid fa-check-double"></i><span>Can I Use</span>
+                </a>
+              </div>
+            </div>
+            <div class="play-game mt-3">
+              <div class="dino-wrap">
+                <div class="dino-head">
+                  <div class="title">Mini Dino Game</div>
+                  <button id="dinoStart" class="btn btn-outline-v2 btn-sm">Play</button>
+                </div>
+                <canvas id="dinoCanvas" width="600" height="160" class="dino-canvas" style="display:none;"></canvas>
+                <div class="tiny mt-1 d-flex justify-content-between">
+                  <span id="dinoHint">Press Space / Tap to jump</span>
+                  <span id="dinoScore" class="text-muted-2" style="display:none;">Score: 0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="play-game">
+            
+          </div>
+        </div>
+        <div class="col-lg-8">
           <div class="chat-shell">
             <div class="chat-header">
               <div class="head-left">
@@ -430,7 +518,51 @@
             </div>
           </div>
         </div>
-        
+        <div class="col-lg-2">
+          <div class="news-sidebar">
+            <div class="news-sidebar-header">
+              <h5>Dev News</h5>
+              <span class="news-badge">Top 5</span>
+            </div>
+            <div class="news-sidebar-body">
+              <a class="news-item" href="https://nodejs.org/en/blog/release/v22.0.0" target="_blank" rel="noopener">
+                <span class="news-dot"></span>
+                <div>
+                  <p class="news-title">Node.js 22 released with faster ESM and improved timers</p>
+                  <div class="news-meta"><span>Backend</span><span>Node.js</span></div>
+                </div>
+              </a>
+              <a class="news-item" href="https://react.dev/blog" target="_blank" rel="noopener">
+                <span class="news-dot"></span>
+                <div>
+                  <p class="news-title">React 19 RC: Actions, new hooks, improved Server Components</p>
+                  <div class="news-meta"><span>Frontend</span><span>React</span></div>
+                </div>
+              </a>
+              <a class="news-item" href="https://devblogs.microsoft.com/typescript/" target="_blank" rel="noopener">
+                <span class="news-dot"></span>
+                <div>
+                  <p class="news-title">TypeScript 5.6: performance wins and refined control-flow</p>
+                  <div class="news-meta"><span>Type Safety</span><span>TypeScript</span></div>
+                </div>
+              </a>
+              <a class="news-item" href="https://developer.chrome.com/blog/" target="_blank" rel="noopener">
+                <span class="news-dot"></span>
+                <div>
+                  <p class="news-title">Chrome DevTools updates: recorder, coverage, and Lighthouse</p>
+                  <div class="news-meta"><span>Tooling</span><span>Chrome</span></div>
+                </div>
+              </a>
+              <a class="news-item" href="https://github.blog/changelog/" target="_blank" rel="noopener">
+                <span class="news-dot"></span>
+                <div>
+                  <p class="news-title">GitHub updates: Actions quality-of-life + Copilot enhancements</p>
+                  <div class="news-meta"><span>DevOps</span><span>GitHub</span></div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Avatar Modal -->
