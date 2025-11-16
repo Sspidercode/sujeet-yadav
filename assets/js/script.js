@@ -224,7 +224,7 @@
     const endsWithFile = segs.length && /\.[a-zA-Z0-9]+$/.test(segs[segs.length - 1]);
     const dirDepth = Math.max(0, segs.length - (endsWithFile ? 1 : 0));
     const prefix = dirDepth === 0 ? '' : '../'.repeat(dirDepth);
-    const iconSrc = '/home/clavis/Documents/SspiderCode/sky_cv/assets/image/ai.gif';
+    const iconSrc = 'https://sspidercode.github.io/sujeet-yadav/assets/image/ai.gif';
     const fab = document.createElement('button');
     fab.type = 'button';
     fab.className = 'zoop-fab';
