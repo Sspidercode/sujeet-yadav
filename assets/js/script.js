@@ -272,7 +272,7 @@
     phoneBtn.href = 'tel:+917275537561';
     phoneBtn.title = 'Call +91 7275537561';
     phoneBtn.innerHTML = '<span class="zf-ring"></span><i class="fa-solid fa-phone"></i>';
-    const waMsg = encodeURIComponent('Namaste Sujeet! Mujhe aapse baat karni hai 😊');
+    const waMsg = encodeURIComponent('Hello Sujeet! I want to talk to you 😊');
     const waBtn = document.createElement('a');
     waBtn.className = 'left-fab fab-wa';
     waBtn.href = `https://wa.me/917275537561?text=${waMsg}`;
