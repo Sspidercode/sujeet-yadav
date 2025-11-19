@@ -5,19 +5,23 @@
 
   // Size to viewport
   function fit() {
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+    const MAX_DPR = 1.5;
+    const DPR = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    // Lower quality on small screens to reduce GPU memory/pressure
+    const QUALITY = (window.innerWidth || canvas.clientWidth || 0) <= 768 ? 0.6 : 0.85;
+    canvas.width = Math.max(1, Math.floor(canvas.clientWidth * DPR * QUALITY));
+    canvas.height = Math.max(1, Math.floor(canvas.clientHeight * DPR * QUALITY));
   }
   fit();
   window.addEventListener('resize', fit, { passive: true });
 
   const config = {
-    TEXTURE_DOWNSAMPLE: 1,
-    DENSITY_DISSIPATION: 0.98,
+    TEXTURE_DOWNSAMPLE: (Math.min(screen.width || canvas.clientWidth || 0, screen.height || canvas.clientHeight || 0) <= 768) ? 2 : 1,
+    DENSITY_DISSIPATION: 0.985,
     VELOCITY_DISSIPATION: 0.99,
     PRESSURE_DISSIPATION: 0.8,
-    PRESSURE_ITERATIONS: 25,
-    CURL: 35,
+    PRESSURE_ITERATIONS: (Math.min(screen.width || canvas.clientWidth || 0, screen.height || canvas.clientHeight || 0) <= 768) ? 12 : 18,
+    CURL: 24,
     SPLAT_RADIUS: 0.002
   };
 
@@ -25,9 +29,12 @@
   const splatStack = [];
 
   const ctx = getWebGLContext(canvas);
+  if (!ctx || !ctx.gl) { try { console.warn('WebGL not available; smoke disabled'); } catch(_){ } return; }
   const gl = ctx.gl;
   const ext = ctx.ext;
   const support_linear_float = ctx.support_linear_float;
+  let loopId = 0;
+  let contextLost = false;
 
   function getWebGLContext(canvas) {
     const params = { alpha: true, depth: false, stencil: false, antialias: false };
@@ -179,92 +186,107 @@
   })();
 
   let lastTime = Date.now();
-  update();
+  startLoop();
+
+  function startLoop(){
+    if (loopId || contextLost || document.visibilityState === 'hidden') return;
+    loopId = requestAnimationFrame(update);
+  }
+  function stopLoop(){
+    if (loopId) { cancelAnimationFrame(loopId); loopId = 0; }
+  }
 
   function update() {
+    if (contextLost || document.visibilityState === 'hidden') { stopLoop(); return; }
     resizeCanvas();
-    const dt = Math.min((Date.now() - lastTime) / 1000, 0.016);
-    lastTime = Date.now();
-    gl.viewport(0, 0, textureWidth, textureHeight);
+    try {
+      const dt = Math.min((Date.now() - lastTime) / 1000, 0.016);
+      lastTime = Date.now();
+      gl.viewport(0, 0, textureWidth, textureHeight);
 
-    if (splatStack.length > 0) {
-      for (let m = 0; m < splatStack.pop(); m++) {
-        const color = [Math.random() * 10, Math.random() * 10, Math.random() * 10];
-        const x = canvas.width * Math.random();
-        const y = canvas.height * Math.random();
-        const dx = 1000 * (Math.random() - 0.5);
-        const dy = 1000 * (Math.random() - 0.5);
-        splat(x, y, dx, dy, color);
+      if (splatStack.length > 0) {
+        for (let m = 0; m < splatStack.pop(); m++) {
+          const color = [Math.random() * 10, Math.random() * 10, Math.random() * 10];
+          const x = canvas.width * Math.random();
+          const y = canvas.height * Math.random();
+          const dx = 1000 * (Math.random() - 0.5);
+          const dy = 1000 * (Math.random() - 0.5);
+          splat(x, y, dx, dy, color);
+        }
       }
-    }
 
-    advectionProgram.bind();
-    gl.uniform2f(advectionProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
-    gl.uniform1i(advectionProgram.uniforms.uVelocity, velocity.first[2]);
-    gl.uniform1i(advectionProgram.uniforms.uSource, velocity.first[2]);
-    gl.uniform1f(advectionProgram.uniforms.dt, dt);
-    gl.uniform1f(advectionProgram.uniforms.dissipation, config.VELOCITY_DISSIPATION);
-    blit(velocity.second[1]); velocity.swap();
+      advectionProgram.bind();
+      gl.uniform2f(advectionProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.uniform1i(advectionProgram.uniforms.uVelocity, velocity.first[2]);
+      gl.uniform1i(advectionProgram.uniforms.uSource, velocity.first[2]);
+      gl.uniform1f(advectionProgram.uniforms.dt, dt);
+      gl.uniform1f(advectionProgram.uniforms.dissipation, config.VELOCITY_DISSIPATION);
+      blit(velocity.second[1]); velocity.swap();
 
-    gl.uniform1i(advectionProgram.uniforms.uVelocity, velocity.first[2]);
-    gl.uniform1i(advectionProgram.uniforms.uSource, density.first[2]);
-    gl.uniform1f(advectionProgram.uniforms.dissipation, config.DENSITY_DISSIPATION);
-    blit(density.second[1]); density.swap();
+      gl.uniform1i(advectionProgram.uniforms.uVelocity, velocity.first[2]);
+      gl.uniform1i(advectionProgram.uniforms.uSource, density.first[2]);
+      gl.uniform1f(advectionProgram.uniforms.dissipation, config.DENSITY_DISSIPATION);
+      blit(density.second[1]); density.swap();
 
-    for (let i = 0, len = pointers.length; i < len; i++) {
-      const pointer = pointers[i];
-      if (pointer.moved) { splat(pointer.x, pointer.y, pointer.dx, pointer.dy, pointer.color); pointer.moved = false; }
-    }
+      for (let i = 0, len = pointers.length; i < len; i++) {
+        const pointer = pointers[i];
+        if (pointer.moved) { splat(pointer.x, pointer.y, pointer.dx, pointer.dy, pointer.color); pointer.moved = false; }
+      }
 
-    curlProgram.bind();
-    gl.uniform2f(curlProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
-    gl.uniform1i(curlProgram.uniforms.uVelocity, velocity.first[2]);
-    blit(curl[1]);
+      curlProgram.bind();
+      gl.uniform2f(curlProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.uniform1i(curlProgram.uniforms.uVelocity, velocity.first[2]);
+      blit(curl[1]);
 
-    vorticityProgram.bind();
-    gl.uniform2f(vorticityProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
-    gl.uniform1i(vorticityProgram.uniforms.uVelocity, velocity.first[2]);
-    gl.uniform1i(vorticityProgram.uniforms.uCurl, curl[2]);
-    gl.uniform1f(vorticityProgram.uniforms.curl, config.CURL);
-    gl.uniform1f(vorticityProgram.uniforms.dt, dt);
-    blit(velocity.second[1]); velocity.swap();
+      vorticityProgram.bind();
+      gl.uniform2f(vorticityProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.uniform1i(vorticityProgram.uniforms.uVelocity, velocity.first[2]);
+      gl.uniform1i(vorticityProgram.uniforms.uCurl, curl[2]);
+      gl.uniform1f(vorticityProgram.uniforms.curl, config.CURL);
+      gl.uniform1f(vorticityProgram.uniforms.dt, dt);
+      blit(velocity.second[1]); velocity.swap();
 
-    divergenceProgram.bind();
-    gl.uniform2f(divergenceProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
-    gl.uniform1i(divergenceProgram.uniforms.uVelocity, velocity.first[2]);
-    blit(divergence[1]);
+      divergenceProgram.bind();
+      gl.uniform2f(divergenceProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.uniform1i(divergenceProgram.uniforms.uVelocity, velocity.first[2]);
+      blit(divergence[1]);
 
-    clearProgram.bind();
-    let pressureTexId = pressure.first[2];
-    gl.activeTexture(gl.TEXTURE0 + pressureTexId);
-    gl.bindTexture(gl.TEXTURE_2D, pressure.first[0]);
-    gl.uniform1i(clearProgram.uniforms.uTexture, pressureTexId);
-    gl.uniform1f(clearProgram.uniforms.value, config.PRESSURE_DISSIPATION);
-    blit(pressure.second[1]); pressure.swap();
-
-    pressureProgram.bind();
-    gl.uniform2f(pressureProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
-    gl.uniform1i(pressureProgram.uniforms.uDivergence, divergence[2]);
-    pressureTexId = pressure.first[2];
-    gl.activeTexture(gl.TEXTURE0 + pressureTexId);
-    for (let i = 0; i < config.PRESSURE_ITERATIONS; i++) {
+      clearProgram.bind();
+      let pressureTexId = pressure.first[2];
+      gl.activeTexture(gl.TEXTURE0 + pressureTexId);
       gl.bindTexture(gl.TEXTURE_2D, pressure.first[0]);
-      gl.uniform1i(pressureProgram.uniforms.uPressure, pressureTexId);
+      gl.uniform1i(clearProgram.uniforms.uTexture, pressureTexId);
+      gl.uniform1f(clearProgram.uniforms.value, config.PRESSURE_DISSIPATION);
       blit(pressure.second[1]); pressure.swap();
+
+      pressureProgram.bind();
+      gl.uniform2f(pressureProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.uniform1i(pressureProgram.uniforms.uDivergence, divergence[2]);
+      pressureTexId = pressure.first[2];
+      gl.activeTexture(gl.TEXTURE0 + pressureTexId);
+      for (let i = 0; i < config.PRESSURE_ITERATIONS; i++) {
+        gl.bindTexture(gl.TEXTURE_2D, pressure.first[0]);
+        gl.uniform1i(pressureProgram.uniforms.uPressure, pressureTexId);
+        blit(pressure.second[1]); pressure.swap();
+      }
+
+      gradienSubtractProgram.bind();
+      gl.uniform2f(gradienSubtractProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.uniform1i(gradienSubtractProgram.uniforms.uPressure, pressure.first[2]);
+      gl.uniform1i(gradienSubtractProgram.uniforms.uVelocity, velocity.first[2]);
+      blit(velocity.second[1]); velocity.swap();
+
+      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+      displayProgram.bind();
+      gl.uniform1i(displayProgram.uniforms.uTexture, density.first[2]);
+      blit(null);
+    } catch (e) {
+      // Stop the loop on unexpected GPU/driver errors to avoid tab crash
+      try { console.warn('Smoke effect stopped due to error:', e?.message || e); } catch(_){}
+      stopLoop();
+      return;
     }
-
-    gradienSubtractProgram.bind();
-    gl.uniform2f(gradienSubtractProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
-    gl.uniform1i(gradienSubtractProgram.uniforms.uPressure, pressure.first[2]);
-    gl.uniform1i(gradienSubtractProgram.uniforms.uVelocity, velocity.first[2]);
-    blit(velocity.second[1]); velocity.swap();
-
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-    displayProgram.bind();
-    gl.uniform1i(displayProgram.uniforms.uTexture, density.first[2]);
-    blit(null);
-
-    requestAnimationFrame(update);
+    loopId = requestAnimationFrame(update);
   }
 
   function splat(x, y, dx, dy, color) {
@@ -283,8 +305,7 @@
 
   function resizeCanvas() {
     if (canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) {
-      canvas.width = canvas.clientWidth;
-      canvas.height = canvas.clientHeight;
+      fit();
       initFramebuffers();
     }
   }
@@ -327,4 +348,21 @@
       p.x = x; p.y = y;
     }
   }, { passive: true });
+
+  // Pause when tab is hidden to reduce GPU load and avoid crashes
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'hidden') { stopLoop(); }
+    else { startLoop(); }
+  });
+  // Handle WebGL context loss gracefully
+  canvas.addEventListener('webglcontextlost', function(e){
+    try { e.preventDefault(); } catch(_){}
+    contextLost = true;
+    stopLoop();
+  }, false);
+  canvas.addEventListener('webglcontextrestored', function(){
+    contextLost = false;
+    try { initFramebuffers(); } catch(_){}
+    startLoop();
+  }, false);
 })();

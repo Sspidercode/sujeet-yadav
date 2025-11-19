@@ -339,11 +339,21 @@
       if (!running) startGame();
     });
     // controls
-    window.addEventListener('keydown', (e)=>{ if (e.code === 'Space') { e.preventDefault(); jump(); } });
+    window.addEventListener('keydown', (e)=>{
+      if (e.code === 'Space') {
+        const t = e.target;
+        const tag = (t && t.tagName) ? t.tagName.toLowerCase() : '';
+        const isEditable = (tag === 'input' || tag === 'textarea' || (t && t.isContentEditable));
+        // Do not block space when typing in inputs/textareas, and only capture during gameplay
+        if (isEditable || !running) return;
+        e.preventDefault();
+        jump();
+      }
+    });
     canvas.addEventListener('pointerdown', ()=> jump());
   })();
 
-  function loadKey(){ return localStorage.getItem('gemini_api_key') || 'AIzaSyAugCGYlkFy-16ggbiT-Num7ddyCaqUbWg'; }
+  function loadKey(){ return localStorage.getItem('gemini_api_key') || 'AIzaSyDjqKy-GvXtMH-aIzUTi6XRqlsB5nO21D0'; }
   function saveKey(k){ localStorage.setItem('gemini_api_key', k); }
   function clearKey(){ localStorage.removeItem('gemini_api_key'); }
 
@@ -943,12 +953,12 @@
       return text.trim();
     }
     // Prefer v1beta first (most consumer keys support v1beta). Then try v1.
-    try { return await callModel(primaryModel, 'v1beta'); }
+    try { return await callModel(primaryModel, 'v1'); }
     catch {
       try { return await callModel(primaryModel, 'v1'); }
       catch {
-        try { return await callModel(fallbackModel, 'v1beta'); }
-        catch { return await callModel(fallbackModel, 'v1'); }
+        try { return await callModel(primaryModel, 'v1'); }
+        catch { return await callModel(primaryModel, 'v1'); }
       }
     }
   }
