@@ -40,6 +40,20 @@
   const aiLoaderMsg = document.getElementById('aiLoaderMsg');
   // Language selector
   const langSelect = document.getElementById('langSelect');
+  // Circle UI toggle
+  const circleUiBtn = document.getElementById('circleUiBtn');
+
+  // Lightweight mode detection (performance mode)
+  const PERF_MODE = (function(){
+    try {
+      const dm = Number(navigator.deviceMemory || 0);
+      const hc = Number(navigator.hardwareConcurrency || 2);
+      const reduced = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) || false;
+      const small = Math.min(window.innerWidth || 0, window.innerHeight || 0) <= 768;
+      return reduced || (dm && dm <= 4) || hc <= 4 || small;
+    } catch { return false; }
+  })();
+  try { window.__PLAYGROUND_PERF_MODE__ = PERF_MODE; } catch {}
 
   // Language persistence
   const LANG_KEY = 'playground_lang';
@@ -52,7 +66,7 @@
     return masked;
   }
   let isListening = false;
-  let ttsEnabled = (localStorage.getItem('playground_tts_enabled') ?? 'true') !== 'false';
+  let ttsEnabled = PERF_MODE ? false : ((localStorage.getItem('playground_tts_enabled') ?? 'true') !== 'false');
   let selectedVoice = null;
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   // Voice input enablement (disabled by default on refresh)
@@ -69,6 +83,10 @@
     setBtnState(ttsBtn, ttsEnabled);
     // Highlight mic if listening or enabled
     setBtnState(voiceBtn, isListening || voiceInputEnabled);
+    try {
+      const enabled = document.body.classList.contains('circle-ui');
+      setBtnState(circleUiBtn, enabled);
+    } catch {}
   }
   updateUiStates();
   // Prepare voices for TTS
@@ -108,6 +126,7 @@
     return s;
   }
   function speak(text){
+    if (PERF_MODE) return;
     if (!ttsEnabled || !('speechSynthesis' in window)) return;
     const t = sanitizeForTTS(text);
     if (!t) return;
@@ -412,6 +431,24 @@
     });
   }
 
+  // Circle UI preference
+  const CIRCLE_UI_KEY = 'playground_circle_ui';
+  function loadCircleUi(){ return localStorage.getItem(CIRCLE_UI_KEY) === '1'; }
+  function saveCircleUi(v){ localStorage.setItem(CIRCLE_UI_KEY, v ? '1' : '0'); }
+  // Apply on load
+  try {
+    if (loadCircleUi()) { document.body.classList.add('circle-ui'); }
+    updateUiStates();
+  } catch {}
+  circleUiBtn?.addEventListener('click', ()=>{
+    try {
+      const enabled = !document.body.classList.contains('circle-ui');
+      document.body.classList.toggle('circle-ui', enabled);
+      saveCircleUi(enabled);
+      updateUiStates();
+    } catch {}
+  });
+
   // Profile menu behavior (toggle + actions)
   (function setupProfileMenu(){
     const trigger = document.getElementById('pmTrigger');
@@ -492,6 +529,7 @@
 
   // ====================== Chat history ======================
   const HISTORY_KEY = 'playground_chat_history_v2';
+  const HISTORY_MAX = 60;
   function loadHistory(){
     try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
   }
@@ -501,7 +539,26 @@
   let history = loadHistory();
   function renderHistory(){
     chatLog.innerHTML = '';
-    history.forEach(m => addMessage(m.who, m.text));
+    const frag = document.createDocumentFragment();
+    const slice = history.slice(-HISTORY_MAX);
+    slice.forEach(m => {
+      const wrap = document.createElement('div');
+      wrap.className = `msg ${m.who}`;
+      if (m.who === 'bot') {
+        const head = `<div class="who">ZOOP AI</div>`;
+        const botAv = loadBotAvatar();
+        const botAvatarEl = botAv ? `<img src="${botAv}" alt="bot" class="avatar avatar-img"/>` : `<div class="avatar">AI</div>`;
+        wrap.innerHTML = head + `<div class="msg-row">${botAvatarEl}<div class="bubble">${renderBotMessage(m.text)}</div></div>`;
+      } else {
+        const av = loadAvatar();
+        const avatarEl = av ? `<img src="${av}" alt="me" class="avatar avatar-img user"/>` : `<div class="avatar user">U</div>`;
+        const userSide = `<div class="user-side"><div class="who-user">You</div>${avatarEl}</div>`;
+        wrap.innerHTML = `<div class="msg-row me"><div class="bubble">${escapeHtml(m.text).replace(/\n/g,'<br/>')}</div>${userSide}</div>`;
+      }
+      frag.appendChild(wrap);
+    });
+    chatLog.appendChild(frag);
+    chatLog.scrollTop = chatLog.scrollHeight;
   }
   if (history.length) renderHistory();
   clearChatBtn?.addEventListener('click', ()=>{
@@ -566,6 +623,7 @@
     chatLog.scrollTop = chatLog.scrollHeight;
     // persist
     history.push({ who, text, ts: Date.now() });
+    if (history.length > HISTORY_MAX) history = history.slice(-HISTORY_MAX);
     saveHistory(history);
     renderSuggestions(false);
   }
@@ -581,7 +639,7 @@
 
   // Stream simple text (no code blocks), else fallback to full render
   async function addBotStreaming(text){
-    if ((text||'').includes('```')) { addMessage('bot', text); return; }
+    if (PERF_MODE || (text||'').includes('```')) { addMessage('bot', text); return; }
     const wrap = document.createElement('div');
     wrap.className = 'msg bot';
     const head = `<div class="who">ZOOP AI</div>`;
@@ -774,6 +832,7 @@
   checkGeminiConnectivity();
   async function checkGeminiConnectivity(){
     if (!aiLoader) return;
+    if (PERF_MODE) { hideLoader(); return false; }
     showLoader('Connecting to AI…');
     const key = loadKey();
     if (!key) {
@@ -783,7 +842,12 @@
     }
     try {
       // very small ping
-      const res = await askGemini(key, 'ping');
+      const ping = askGemini(key, 'ping');
+      ping.catch(()=>{});
+      const res = await Promise.race([
+        ping,
+        new Promise((_, reject)=>setTimeout(()=>reject(new Error('timeout')), 4000))
+      ]);
       if (res) {
         showLoader('AI connected!');
         setTimeout(hideLoader, 600);

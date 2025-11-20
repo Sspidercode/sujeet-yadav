@@ -2,6 +2,9 @@
 (function(){
   const canvas = document.getElementById('smokeCanvas');
   if (!canvas) return;
+  try {
+    if (window.__PLAYGROUND_PERF_MODE__) { canvas.style.display = 'none'; return; }
+  } catch(_){}
 
   // Size to viewport
   function fit() {

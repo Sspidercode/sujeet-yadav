@@ -379,6 +379,25 @@
       /* Input spacing */
       .p-2 { padding: 10px !important; }
     }
+    /* ========= Circle UI mode ========= */
+    body.circle-ui .chat-header .btn { width: 36px; height: 36px; padding: 0; border-radius: 50%; display:inline-flex; align-items:center; justify-content:center; }
+    body.circle-ui .chat-header .form-select { border-radius: 999px; }
+    body.circle-ui .side-item { width: 56px; height: 56px; border-radius: 50%; justify-content: center; padding: 0; }
+    body.circle-ui .side-item span { display: none; }
+    body.circle-ui .side-item .side-kbd { display: none; }
+    body.circle-ui .side-item i { font-size: 1rem; }
+    body.circle-ui .side-title { display: none; }
+    body.circle-ui .news-sidebar-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 10px; }
+    body.circle-ui .news-item { grid-template-columns: 1fr; width: 64px; height: 64px; border-radius: 50%; justify-items: center; align-items: center; text-align: center; padding: 0; }
+    body.circle-ui .news-item .news-title, body.circle-ui .news-item .news-meta, body.circle-ui .news-item .news-dot { display: none; }
+    body.circle-ui .chat-shell { border-radius: 20px; }
+    body.circle-ui .chip { border-radius: 999px; }
+    @media (max-width: 767.98px){
+      body.circle-ui .side-menu { padding: 8px; }
+      body.circle-ui .side-item { width: 48px; height: 48px; }
+      body.circle-ui .news-item { width: 54px; height: 54px; }
+      body.circle-ui .chat-header .btn { width: 34px; height: 34px; }
+    }
   </style>
 </head>
 
@@ -500,6 +519,7 @@
                <button id="keyBtn" class="btn btn-outline-v2 btn-sm" title="Set API Key"><i class="fa-solid fa-key"></i></button>
                <button id="regenBtn" class="btn btn-outline-v2 btn-sm" title="Regenerate last answer"><i class="fa-solid fa-rotate-right"></i></button>
                <button id="clearChatBtn" class="btn btn-outline-v2 btn-sm" title="Clear conversation"><i class="fa-regular fa-trash-can"></i></button>
+              <button id="circleUiBtn" class="btn btn-outline-v2 btn-sm" title="Toggle Circle UI"><i class="fa-regular fa-circle"></i></button>
                 <button id="toggleSettings" class="btn btn-outline-v2 btn-sm"><i class="fa-solid fa-gear"></i></button>
                 <button id="logoutBtn" class="btn btn-outline-v2 btn-sm" title="Logout"><i
                     class="fa-solid fa-power-off"></i></button>

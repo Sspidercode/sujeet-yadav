@@ -240,6 +240,7 @@
 
   // Fog effect: follow cursor across the page
   (function setupFogEffect() {
+    try { if (window.__PLAYGROUND_PERF_MODE__) return; } catch(_){}
     const bodyEl = document.body;
     let fadeTimeout;
     function setFog(x, y, opacity) {
