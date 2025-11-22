@@ -27,8 +27,6 @@
   const profileGender = document.getElementById('profileGender');
   const editProfileBtn = document.getElementById('editProfileBtn');
   const logoutBtn = document.getElementById('logoutBtn');
-  const voiceBtn = document.getElementById('voiceBtn');
-  const ttsBtn = document.getElementById('ttsBtn');
   // API key modal elements
   const apiKeyModalEl = document.getElementById('apiKeyModal');
   const gemKeyModalInput = document.getElementById('gemKeyModalInput');
@@ -65,186 +63,18 @@
     const masked = '•'.repeat(Math.max(8, k.length - 4)) + last4; // always at least 8 bullets for obfuscation
     return masked;
   }
-  let isListening = false;
-  let ttsEnabled = PERF_MODE ? false : ((localStorage.getItem('playground_tts_enabled') ?? 'true') !== 'false');
-  let selectedVoice = null;
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  // Voice input enablement (disabled by default on refresh)
-  const VOICE_INPUT_KEY = 'playground_voice_input_enabled';
-  function loadVoiceEnabled(){ return localStorage.getItem(VOICE_INPUT_KEY) === 'true'; }
-  function saveVoiceEnabled(v){ localStorage.setItem(VOICE_INPUT_KEY, String(!!v)); }
-  let voiceInputEnabled = loadVoiceEnabled() || false;
   function setBtnState(btn, on){
     if (!btn) return;
     btn.classList.toggle('btn-primary-v2', !!on);
     btn.classList.toggle('btn-outline-v2', !on);
   }
   function updateUiStates(){
-    setBtnState(ttsBtn, ttsEnabled);
-    // Highlight mic if listening or enabled
-    setBtnState(voiceBtn, isListening || voiceInputEnabled);
     try {
       const enabled = document.body.classList.contains('circle-ui');
       setBtnState(circleUiBtn, enabled);
     } catch {}
   }
   updateUiStates();
-  // Prepare voices for TTS
-  if ('speechSynthesis' in window) {
-    const loadVoices = ()=>{
-      const voices = window.speechSynthesis.getVoices() || [];
-      const lang = loadLang();
-      const pref = lang === 'english' ? /en-(IN|US)|English/i
-                  : lang === 'punjabi' ? /pa-|Punjabi/i
-                  : /hi-|en-IN|India|Hindi/i; // default Hinglish/Hindi/Bhojpuri
-      selectedVoice = voices.find(v=>pref.test((v.lang||'')+' '+(v.name||''))) || voices[0] || null;
-    };
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-  }
-  function stripCodeBlocks(text){
-    return String(text || '').replace(/```[\s\S]*?```/g, ' ').replace(/\s{2,}/g, ' ').trim();
-  }
-  // Clean text so TTS doesn't read special characters/markdown/links/emojis
-  function sanitizeForTTS(text){
-    let s = String(text || '');
-    // Drop fenced code blocks
-    s = s.replace(/```[\s\S]*?```/g, ' ');
-    // Keep only link text for markdown links
-    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
-    // Remove inline code markers/backticks/markdown emphasis/headers/blockquote symbols
-    s = s.replace(/[*_~`>#]+/g, '');
-    // Remove list bullets (dash/star/dot) at line starts or inline
-    s = s.replace(/(^|\n)\s*[-*•]\s+/g, '$1');
-    s = s.replace(/\s[-*•]\s+/g, ' ');
-    // Remove URLs
-    s = s.replace(/https?:\/\/\S+/g, '');
-    // Remove most symbols/emoji while keeping letters, numbers, whitespace and common punctuation
-    s = s.replace(/[^\p{L}\p{M}\p{N}\s\.,!?\-;:'"()]/gu, ' ');
-    // Collapse whitespace
-    s = s.replace(/\s{2,}/g, ' ').trim();
-    return s;
-  }
-  function speak(text){
-    if (PERF_MODE) return;
-    if (!ttsEnabled || !('speechSynthesis' in window)) return;
-    const t = sanitizeForTTS(text);
-    if (!t) return;
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(t);
-      if (selectedVoice) u.voice = selectedVoice;
-      const l = loadLang();
-      const langCode = l === 'english' ? 'en-IN' : (l === 'punjabi' ? 'pa-IN' : 'hi-IN');
-      u.lang = (selectedVoice && selectedVoice.lang) || langCode;
-      u.rate = 1.0;
-      u.pitch = 1.0;
-      window.speechSynthesis.speak(u);
-    } catch {}
-  }
-  ttsBtn?.addEventListener('click', ()=>{
-    ttsEnabled = !ttsEnabled;
-    localStorage.setItem('playground_tts_enabled', String(ttsEnabled));
-    updateUiStates();
-    notify(ttsEnabled ? '🔊 Voice playback enabled.' : '🔇 Voice playback disabled.');
-  });
-  // Basic mobile/permission helpers
-  let micStream = null;
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-  async function ensureMic(){
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return true; // try anyway
-    if (micStream?.active) return true;
-    try {
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      return true;
-    } catch (err) {
-      notify('🎤 Mic permission denied. Please allow microphone access.');
-      return false;
-    }
-  }
-  voiceBtn?.addEventListener('click', async ()=>{
-    // First click toggles enablement; second click starts listening
-    if (!voiceInputEnabled) {
-      voiceInputEnabled = true;
-      saveVoiceEnabled(true);
-      updateUiStates();
-      notify('🎙️ Voice input enabled. Tap mic again to start listening.');
-      return;
-    }
-    if (!SpeechRecognition) { notify('🎤 Voice input not supported on this browser.'); return; }
-    if (isMobile && !isSecure) { notify('🔒 Voice works best on HTTPS or localhost.'); }
-    // If a prior SIGILL crash was detected, keep voice disabled for this session
-    if (sessionStorage.getItem('voice_disabled_sigill') === '1') {
-      notify('⚠️ Voice is disabled due to a prior device crash. Restart browser or update Chrome/WebView to re-enable.');
-      return;
-    }
-    if (isListening) { try { recognition.stop(); } catch {} return; }
-    // Avoid getUserMedia on mobile (can conflict with SpeechRecognition and cause native crashes)
-    const ok = isMobile ? true : await ensureMic();
-    if (!ok) return;
-    startListening();
-  });
-  let recognition;
-  function startListening(){
-    try {
-      recognition = new SpeechRecognition();
-      // Map speech input language from selected language
-      const l = loadLang();
-      recognition.lang = l === 'english' ? 'en-IN' : 'hi-IN';
-      // On some Android Chrome builds, continuous mode can crash (SIGILL). Keep it off.
-      recognition.continuous = false;
-      recognition.interimResults = false;      // keep simple to reduce crash surface
-      recognition.maxAlternatives = 1;
-      recognition.onstart = ()=>{ isListening = true; updateUiStates(); };
-      recognition.onresult = (e)=>{
-        // Collect final results only to send; ignore interim for send
-        const res = e.results?.[0];
-        const txt = res?.[0]?.transcript || '';
-        if (txt) {
-          if (chatInput) chatInput.value = txt;
-          onSend();
-        }
-      };
-      recognition.onerror = (e)=>{
-        const err = e?.error || 'unknown';
-        if (err === 'not-allowed') notify('🔒 Permission blocked. Allow mic in site settings.');
-        else if (err === 'no-speech') notify('🤐 No speech detected. Please try again.');
-        else if (err === 'audio-capture') notify('🎙️ No microphone found or busy.');
-        else if ((e?.message||'').toUpperCase().includes('SIGILL')) {
-          sessionStorage.setItem('voice_disabled_sigill', '1');
-          notify('⚠️ Device audio crashed (SIGILL). Voice disabled for this session. Please update Chrome/WebView or restart the browser.');
-        }
-        else notify('🎤 Voice error: ' + err);
-      };
-      recognition.onend = ()=>{
-        isListening = false;
-        updateUiStates();
-        // Do NOT auto-restart on mobile to avoid crashes (SIGILL).
-      };
-      recognition.start();
-    } catch (e) {
-      const msg = (e && (e.message||'')).toString();
-      if (msg.toUpperCase().includes('SIGILL')) {
-        sessionStorage.setItem('voice_disabled_sigill', '1');
-        notify('⚠️ Voice engine crashed (SIGILL). Try updating Chrome/WebView or restarting the browser.');
-      } else {
-        notify('🎤 Unable to start voice input.');
-      }
-    }
-  }
-
-  // Stop recognition when page is hidden to avoid background crashes
-  document.addEventListener('visibilitychange', ()=>{
-    if (document.visibilityState !== 'visible') {
-      try { recognition?.abort(); } catch {}
-      isListening = false; updateUiStates();
-    }
-  });
-  window.addEventListener('pagehide', ()=>{
-    try { recognition?.abort(); } catch {}
-    isListening = false; updateUiStates();
-  });
 
   // ====================== Mini Dino Game ======================
   (function setupDino(){
@@ -610,8 +440,6 @@
       const botAv = loadBotAvatar();
       const botAvatarEl = botAv ? `<img src="${botAv}" alt="bot" class="avatar avatar-img"/>` : `<div class="avatar">AI</div>`;
       wrap.innerHTML = head + `<div class="msg-row">${botAvatarEl}<div class="bubble">${renderBotMessage(text)}</div></div>`;
-      // Speak bot messages if enabled
-      speak(text);
     } else {
       const av = loadAvatar();
       const avatarEl = av ? `<img src="${av}" alt="me" class="avatar avatar-img user"/>` : `<div class="avatar user">U</div>`;
@@ -666,7 +494,6 @@
     // persist + speak
     history.push({ who:'bot', text, ts: Date.now() });
     saveHistory(history);
-    speak(text);
   }
 
   function renderBotMessage(text){
@@ -1016,13 +843,13 @@
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       return text.trim();
     }
-    // Prefer v1beta first (most consumer keys support v1beta). Then try v1.
-    try { return await callModel(primaryModel, 'v1'); }
+    // Prefer v1beta first, then v1; try fallback models if needed
+    try { return await callModel(primaryModel, 'v1beta'); }
     catch {
       try { return await callModel(primaryModel, 'v1'); }
       catch {
-        try { return await callModel(primaryModel, 'v1'); }
-        catch { return await callModel(primaryModel, 'v1'); }
+        try { return await callModel(fallbackModel, 'v1beta'); }
+        catch { return await callModel(fallbackModel, 'v1'); }
       }
     }
   }
